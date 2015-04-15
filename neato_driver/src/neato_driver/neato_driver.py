@@ -34,9 +34,6 @@ __author__ = "ferguson@cs.albany.edu (Michael Ferguson)"
 
 import serial
 
-BASE_WIDTH = 248    # millimeters
-MAX_SPEED = 300     # millimeters/second
-
 """
 This driver has been changed from the original version in order to support
 a wider range of neato models and firmware versions.
@@ -47,9 +44,9 @@ This driver reads responses until it receives a control-z. Neato Robotics has
 documented that all responses have a control-Z (^Z) at the end of the
 response string: http://www.neatorobotics.com.au/programmer-s-manual
 """
-CTRL_Z = chr(26)
 
-class xv11():
+
+class Botvac():
 
     def __init__(self, port="/dev/ttyUSB0"):
         self.port = serial.Serial(port,115200)
@@ -57,6 +54,10 @@ class xv11():
         self.state = {"LeftWheel_PositionInMM": 0, "RightWheel_PositionInMM": 0,"LSIDEBIT": 0,"RSIDEBIT": 0,"LFRONTBIT": 0,
                       "RFRONTBIT": 0,"BTN_SOFT_KEY": 0,"BTN_SCROLL_UP": 0,"BTN_START": 0,"BTN_BACK": 0,"BTN_SCROLL_DOWN": 0}
         self.stop_state = True
+        
+        self.base_width = 248    # millimeters
+        self.max_speed = 300     # millimeters/second
+        self.crtl_z = chr(26)
         # turn things on
         self.port.flushInput()
         self.port.write("\n")
@@ -99,7 +100,7 @@ class xv11():
                 self.port.timeout *= 2
             else:
                 response += buf
-                if buf[len(buf)-1] == CTRL_Z:
+                if buf[len(buf)-1] == self.crtl_z:
                     break;
         self.port.timeout = None
         return response

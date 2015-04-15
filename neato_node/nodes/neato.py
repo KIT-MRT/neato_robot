@@ -26,7 +26,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """
-ROS node for Neato XV-11 Robot Vacuum.
+ROS node for Neato robot vacuums.
 """
 
 __author__ = "ferguson@cs.albany.edu (Michael Ferguson)"
@@ -36,13 +36,13 @@ import rospy
 from math import sin,cos
 
 from sensor_msgs.msg import LaserScan
-from neato_node.msg import button
+from neato_node.msg import Button
 from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from tf.broadcaster import TransformBroadcaster
 
-from neato_driver.neato_driver import xv11, BASE_WIDTH, MAX_SPEED
+from neato_driver.neato_driver import Botvac
 
 class NeatoNode:
 
@@ -53,12 +53,12 @@ class NeatoNode:
 	self.port = rospy.get_param('~port', "/dev/ttyUSB0")
 	rospy.loginfo("Using port: %s"%(self.port))
 
-	self.robot = xv11(self.port)
+	self.robot = Botvac(self.port)
 
 	rospy.Subscriber("cmd_vel", Twist, self.cmdVelCb)
 	self.scanPub = rospy.Publisher('base_scan', LaserScan, queue_size=10)
 	self.odomPub = rospy.Publisher('odom',Odometry, queue_size=10)
-	self.buttonPub = rospy.Publisher('soft_button',button, queue_size=100)
+	self.buttonPub = rospy.Publisher('soft_button', Button, queue_size=100)
 	self.odomBroadcaster = TransformBroadcaster()
 	self.cmd_vel = [0,0]
 	self.old_vel = self.cmd_vel
@@ -74,15 +74,15 @@ class NeatoNode:
         # things that don't ever change
         scan_link = rospy.get_param('~frame_id','base_laser_link')
         scan = LaserScan(header=rospy.Header(frame_id=scan_link)) 
-        scan.angle_min = 0
-        scan.angle_max = 6.26
+        scan.angle_min = -3.13
+        scan.angle_max = +3.13
         scan.angle_increment = 0.017437326
         scan.range_min = 0.020
         scan.range_max = 5.0
         
 	odom = Odometry(header=rospy.Header(frame_id="odom"), child_frame_id='base_link')
 
-	softb = button()
+	softb = Button()
 	
 	
         # main loop of driver
@@ -111,7 +111,7 @@ class NeatoNode:
             encoders = [left, right]
             
             dx = (d_left+d_right)/2
-            dth = (d_right-d_left)/(BASE_WIDTH/1000.0)
+            dth = (d_right-d_left)/(self.robot.base_width/1000.0)
 
             x = cos(dth)*dx
             y = -sin(dth)*dx
@@ -158,11 +158,11 @@ class NeatoNode:
 
     def cmdVelCb(self,req):
         x = req.linear.x * 1000
-        th = req.angular.z * (BASE_WIDTH/2) 
+        th = req.angular.z * (self.robot.base_width/2)
         k = max(abs(x-th),abs(x+th))
         # sending commands higher than max speed will fail
-        if k > MAX_SPEED:
-            x = x*MAX_SPEED/k; th = th*MAX_SPEED/k
+        if k > self.robot.max_speed:
+            x = x*self.robot.max_speed/k; th = th*self.robot.max_speed/k
         self.cmd_vel = [ int(x-th) , int(x+th) ]
 
 if __name__ == "__main__":    

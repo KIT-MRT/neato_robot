@@ -2,7 +2,7 @@
   <name>neato_2dnav</name>
   <version>0.2.0</version>
   <description>
-    This package contains configuration and launch files for using the navigation stack with the Neato XV-11 robot.
+    This package contains configuration and launch files for using the navigation stack with Neato robots.
   </description>
   <author>Michael Ferguson</author>
   <maintainer email="ferguson@cs.albany.edu">Michael Ferguson</maintainer>

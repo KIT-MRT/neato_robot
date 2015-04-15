@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="neato">
+    <link name="base_link">
+    
+      <inertial>
+        <mass value="4.1" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="0.01152" ixy="0.0" ixz="0.0" iyy="0.01152" iyz="0.0" izz="0.0218" />
+      </inertial>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 1.57" />
+        <geometry>
+          <mesh filename="package://neato_node/meshes/neato.dae" scale="0.025 0.025 0.025"/>
+        </geometry>
+      </visual>
+
+<!--  stl exported from sketchup broken
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://neato_node/meshes/neato.stl"/>
+        </geometry>
+      </collision>
+ -->
+      
+    </link>    
+</robot>

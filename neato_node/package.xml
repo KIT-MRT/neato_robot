@@ -10,7 +10,8 @@
   <url>http://ros.org/wiki/neato_node</url>
   
   <buildtool_depend>catkin</buildtool_depend>
-
+  <build_depend>message_generation</build_depend>
+  <run_depend>message_runtime</run_depend>
   <run_depend>neato_driver</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>sensor_msgs</run_depend>
