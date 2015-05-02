@@ -8,6 +8,7 @@ Panels:
         - /Status1
         - /Map1
         - /RobotModel1
+        - /Odometry1
         - /Global Plan1
         - /Local Plan1
         - /Goal1
@@ -119,8 +120,8 @@ Visualization Manager:
       Class: rviz/Odometry
       Color: 255; 25; 0
       Enabled: true
-      Keep: 100
-      Length: 1
+      Keep: 1
+      Length: 0.5
       Name: Odometry
       Position Tolerance: 0.1
       Topic: /odom
@@ -217,12 +218,12 @@ Visualization Manager:
       Draw Behind: true
       Enabled: true
       Name: Map
-      Topic: /move_base/global_costmap/costmap
+      Topic: /move_base/local_costmap/costmap
       Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: base_link
+    Fixed Frame: map
     Frame Rate: 30
   Name: root
   Tools:
@@ -243,22 +244,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 9.82493
+      Distance: 3.78226
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0
-        Y: 0
-        Z: 0
+        X: 0.57813
+        Y: -0.478513
+        Z: 0.0682464
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 1.0448
+      Pitch: 0.994797
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.45722
+      Yaw: 3.18723
     Saved: ~
 Window Geometry:
   Displays:
