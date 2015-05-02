@@ -149,6 +149,7 @@ class NeatoNode:
             button_enum = ("Soft_Button", "Up_Button", "Start_Button", "Back_Button", "Down_Button")
 
             for idx, b in enumerate({btn_soft, btn_scr_up, btn_start, btn_back, btn_scr_down}):
+                print b
                 if b == 'True':
                     button.value = b
                     button.name = button_enum[idx]
