@@ -36,7 +36,7 @@ import rospy
 from math import sin,cos
 
 from sensor_msgs.msg import LaserScan
-from neato_node.msg import Button
+from neato_node.msg import Button, Sensor
 from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
@@ -59,7 +59,8 @@ class NeatoNode:
         self.scanPub = rospy.Publisher('base_scan', LaserScan, queue_size=10)
         self.odomPub = rospy.Publisher('odom', Odometry, queue_size=10)
 
-        self.buttonPub = rospy.Publisher('button', Button, queue_size=100)
+        self.buttonPub = rospy.Publisher('button', Button, queue_size=10)
+        self.sensorPub = rospy.Publisher('sensor', Sensor, queue_size=10)
         self.odomBroadcaster = TransformBroadcaster()
         self.cmd_vel = [0, 0]
         self.old_vel = self.cmd_vel
@@ -84,6 +85,7 @@ class NeatoNode:
         odom = Odometry(header=rospy.Header(frame_id="odom"), child_frame_id='base_link')
 
         button = Button()
+        sensor = Sensor()
 
 
         # main loop of driver
@@ -135,25 +137,30 @@ class NeatoNode:
 
 
             # sensors
-            lsb,rsb,lfb,rfb = self.robot.getDigitalSensors()
+            lsb, rsb, lfb, rfb = self.robot.getDigitalSensors()
 
             # buttons
             btn_soft, btn_scr_up, btn_start, btn_back, btn_scr_down = self.robot.getButtons()
 
 
             # publish everything
-            self.odomBroadcaster.sendTransform((self.x, self.y, 0), (quaternion.x, quaternion.y, quaternion.z, quaternion.w),
-                then, "base_link", "odom")
+            self.odomBroadcaster.sendTransform((self.x, self.y, 0), (quaternion.x, quaternion.y, quaternion.z,
+                                                                     quaternion.w), then, "base_link", "odom")
             self.scanPub.publish(scan)
             self.odomPub.publish(odom)
             button_enum = ("Soft_Button", "Up_Button", "Start_Button", "Back_Button", "Down_Button")
-
+            sensor_enum = ("Left_Side_Bumper", "Right_Side_Bumper", "Left_Bumper", "Right_Bumper")
             for idx, b in enumerate((btn_soft, btn_scr_up, btn_start, btn_back, btn_scr_down)):
                 if b == 1:
                     button.value = b
                     button.name = button_enum[idx]
                     self.buttonPub.publish(button)
 
+            for idx, b in enumerate((lsb, rsb, lfb, rfb)):
+                if b == 1:
+                    sensor.value = b
+                    sensor.name = sensor_enum[idx]
+                    self.sensorPub.publish(sensor)
           # wait, then do it again
             r.sleep()
 
@@ -168,7 +175,7 @@ class NeatoNode:
         # sending commands higher than max speed will fail
         if k > self.robot.max_speed:
             x = x*self.robot.max_speed/k; th = th*self.robot.max_speed/k
-        self.cmd_vel = [ int(x-th) , int(x+th) ]
+        self.cmd_vel = [int(x-th), int(x+th)]
 
 if __name__ == "__main__":    
     robot = NeatoNode()
