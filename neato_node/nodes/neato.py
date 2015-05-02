@@ -51,14 +51,13 @@ class NeatoNode:
         rospy.init_node('neato')
 
         self.port = rospy.get_param('~port', "/dev/ttyUSB0")
-        rospy.loginfo("Using port: %s"%(self.port))
+        rospy.loginfo("Using port: %s" % self.port)
 
         self.robot = Botvac(self.port)
 
         rospy.Subscriber("cmd_vel", Twist, self.cmdVelCb)
         self.scanPub = rospy.Publisher('base_scan', LaserScan, queue_size=10)
         self.odomPub = rospy.Publisher('odom', Odometry, queue_size=10)
-
         self.buttonPub = rospy.Publisher('button', Button, queue_size=10)
         self.sensorPub = rospy.Publisher('sensor', Sensor, queue_size=10)
         self.odomBroadcaster = TransformBroadcaster()
@@ -86,7 +85,7 @@ class NeatoNode:
 
         button = Button()
         sensor = Sensor()
-
+        self.robot.setBacklight(1)
 
         # main loop of driver
         r = rospy.Rate(5)

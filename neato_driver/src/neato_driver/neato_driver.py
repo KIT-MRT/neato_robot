@@ -155,7 +155,7 @@ class Botvac():
         self.port.flushInput()
         self.port.write("getmotors\n")
         self.readResponseAndUpdateState()
-        return [self.state["LeftWheel_PositionInMM"],self.state["RightWheel_PositionInMM"]]
+        return [self.state["LeftWheel_PositionInMM"], self.state["RightWheel_PositionInMM"]]
 
     def getAnalogSensors(self):
         """ Update values for analog sensors in the self.state dictionary. """
@@ -166,13 +166,13 @@ class Botvac():
         """ Update values for digital sensors in the self.state dictionary. """
         self.port.write("getdigitalsensors\n")
         self.readResponseAndUpdateState()
-        return [self.state["LSIDEBIT"],self.state["RSIDEBIT"],self.state["LFRONTBIT"],self.state["RFRONTBIT"]]
+        return [self.state["LSIDEBIT"], self.state["RSIDEBIT"], self.state["LFRONTBIT"], self.state["RFRONTBIT"]]
 
     def getButtons(self):
         """ Update values for digital buttons in the self.state dictionary. """
         self.port.write("getbuttons\n")
         self.readResponseAndUpdateState()
-        return [self.state["BTN_SOFT_KEY"],self.state["BTN_SCROLL_UP"],self.state["BTN_START"],self.state["BTN_BACK"],self.state["BTN_SCROLL_DOWN"]]
+        return [self.state["BTN_SOFT_KEY"], self.state["BTN_SCROLL_UP"], self.state["BTN_START"], self.state["BTN_BACK"], self.state["BTN_SCROLL_DOWN"]]
     
     def getCharger(self):
         """ Update values for charger/battery related info in self.state dictionary. """
@@ -180,6 +180,7 @@ class Botvac():
         self.readResponseAndUpdateState()
 
     def setBacklight(self, value):
+
         if value > 0:
             self.port.write("setled backlighton")
         else:
