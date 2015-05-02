@@ -87,12 +87,11 @@ class NeatoNode:
         sensor = Sensor()
         self.robot.setBacklight(1)
         self.robot.setLED("Green")
-        print self.robot.getCharger()
         # main loop of driver
         r = rospy.Rate(5)
         while not rospy.is_shutdown():
             # notify if low batt
-            if self.robot.getCharger() < 100:
+            if self.robot.getCharger() < 10:
                 print "battery low " + str(self.robot.getCharger()) + "%"
             # get motor encoder values
             left, right = self.robot.getMotors()

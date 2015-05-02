@@ -192,7 +192,7 @@ class Botvac():
     def setLED(self, value):
 
         if value == "Green":
-            self.port.write("setled backlighton\n")
+            self.port.write("setled ButtonGreen\n")
         if value == "Amber":
             self.port.write("setled ButtonAmber\n")
         if value == "Red":
