@@ -59,13 +59,13 @@ class NeatoNode:
         self.scanPub = rospy.Publisher('base_scan', LaserScan, queue_size=10)
         self.odomPub = rospy.Publisher('odom', Odometry, queue_size=10)
 
-        self.buttonPub = rospy.Publisher('soft_button', Button, queue_size=100)
+        self.buttonPub = rospy.Publisher('button', Button, queue_size=100)
         self.odomBroadcaster = TransformBroadcaster()
-        self.cmd_vel = [0,0]
+        self.cmd_vel = [0, 0]
         self.old_vel = self.cmd_vel
 
     def spin(self):
-        encoders = [0,0]
+        encoders = [0, 0]
 
         self.x = 0                  # position in xy plane
         self.y = 0
@@ -142,16 +142,17 @@ class NeatoNode:
 
 
             # publish everything
-            self.odomBroadcaster.sendTransform( (self.x, self.y, 0), (quaternion.x, quaternion.y, quaternion.z, quaternion.w),
-                then, "base_link", "odom" )
+            self.odomBroadcaster.sendTransform((self.x, self.y, 0), (quaternion.x, quaternion.y, quaternion.z, quaternion.w),
+                then, "base_link", "odom")
             self.scanPub.publish(scan)
             self.odomPub.publish(odom)
             button_enum = ("Soft_Button", "Up_Button", "Start_Button", "Back_Button", "Down_Button")
 
             for idx, b in enumerate({btn_soft, btn_scr_up, btn_start, btn_back, btn_scr_down}):
-                button.value = b
-                button.name = button_enum[idx]
-                self.buttonPub.publish(button)
+                if b == 'True':
+                    button.value = b
+                    button.name = button_enum[idx]
+                    self.buttonPub.publish(button)
 
 
             # wait, then do it again
