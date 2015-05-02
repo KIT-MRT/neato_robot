@@ -189,6 +189,21 @@ class Botvac():
             self.port.write("setled backlightoff\n")
         #self.readResponseString()
 
+    def setLED(self, value):
+
+        if value == "Green":
+            self.port.write("setled backlighton\n")
+        if value == "Amber":
+            self.port.write("setled ButtonAmber\n")
+        if value == "Red":
+            self.port.write("setled LEDRed\n")
+        if value == "Off":
+            self.port.write("setled ButtonOff\n")
+        if value == "DimGreen":
+            self.port.write("setled ButtonGreenDim\n")
+        if value == "DimAmber":
+            self.port.write("setled ButtonAmberDim\n")
+
     #SetLED - Sets the specified LED to on,off,blink, or dim. (TestMode Only)
     #BacklightOn - LCD Backlight On  (mutually exclusive of BacklightOff)
     #BacklightOff - LCD Backlight Off (mutually exclusive of BacklightOn)
