@@ -204,14 +204,5 @@ class Botvac():
         if value == "DimAmber":
             self.port.write("setled ButtonAmberDim\n")
 
-    #SetLED - Sets the specified LED to on,off,blink, or dim. (TestMode Only)
-    #BacklightOn - LCD Backlight On  (mutually exclusive of BacklightOff)
-    #BacklightOff - LCD Backlight Off (mutually exclusive of BacklightOn)
-    #ButtonAmber - Start Button Amber (mutually exclusive of other Button options)
-    #ButtonGreen - Start Button Green (mutually exclusive of other Button options)
-    #LEDRed - Start Red LED (mutually exclusive of other Button options)
-    #LEDGreen - Start Green LED (mutually exclusive of other Button options)
-    #ButtonAmberDim - Start Button Amber Dim (mutually exclusive of other Button options)
-    #ButtonGreenDim - Start Button Green Dim (mutually exclusive of other Button options)
-    #ButtonOff - Start Button Off
+
 
