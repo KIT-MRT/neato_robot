@@ -95,7 +95,7 @@ class NeatoNode:
 
             # send updated movement commands
             if self.cmd_vel != self.old_vel:
-            self.robot.setMotors(self.cmd_vel[0], self.cmd_vel[1], max(abs(self.cmd_vel[0]), abs(self.cmd_vel[1])))
+                self.robot.setMotors(self.cmd_vel[0], self.cmd_vel[1], max(abs(self.cmd_vel[0]), abs(self.cmd_vel[1])))
 
             # prepare laser scan
             scan.header.stamp = rospy.Time.now()
