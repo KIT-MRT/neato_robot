@@ -148,11 +148,11 @@ class NeatoNode:
             self.odomPub.publish(odom)
             button_enum = ("Soft_Button", "Up_Button", "Start_Button", "Back_Button", "Down_Button")
 
-            for idx, b in enumerate({btn_soft, btn_scr_up, btn_start, btn_back, btn_scr_down}):
-                #if b == 1:
-                button.value = b
-                button.name = button_enum[idx]
-                self.buttonPub.publish(button)
+            for idx, b in enumerate(btn_soft, btn_scr_up, btn_start, btn_back, btn_scr_down):
+                if b == 1:
+                    button.value = b
+                    button.name = button_enum[idx]
+                    self.buttonPub.publish(button)
 
           # wait, then do it again
             r.sleep()
