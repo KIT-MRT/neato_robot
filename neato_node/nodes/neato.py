@@ -88,7 +88,7 @@ class NeatoNode:
         self.robot.setBacklight(1)
         self.robot.setLED("Green")
         # main loop of driver
-        r = rospy.Rate(5)
+        r = rospy.Rate(10)
         while not rospy.is_shutdown():
             # notify if low batt
             if self.robot.getCharger() < 10:
