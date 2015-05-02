@@ -47,23 +47,24 @@ from neato_driver.neato_driver import Botvac
 class NeatoNode:
 
     def __init__(self):
-	""" Start up connection to the Neato Robot. """
-	rospy.init_node('neato')
+        """ Start up connection to the Neato Robot. """
+        rospy.init_node('neato')
 
-	self.port = rospy.get_param('~port', "/dev/ttyUSB0")
-	rospy.loginfo("Using port: %s"%(self.port))
+        self.port = rospy.get_param('~port', "/dev/ttyUSB0")
+        rospy.loginfo("Using port: %s"%(self.port))
 
-	self.robot = Botvac(self.port)
+        self.robot = Botvac(self.port)
 
-	rospy.Subscriber("cmd_vel", Twist, self.cmdVelCb)
-	self.scanPub = rospy.Publisher('base_scan', LaserScan, queue_size=10)
-	self.odomPub = rospy.Publisher('odom',Odometry, queue_size=10)
-	self.buttonPub = rospy.Publisher('soft_button', Button, queue_size=100)
-	self.odomBroadcaster = TransformBroadcaster()
-	self.cmd_vel = [0,0]
-	self.old_vel = self.cmd_vel
+        rospy.Subscriber("cmd_vel", Twist, self.cmdVelCb)
+        self.scanPub = rospy.Publisher('base_scan', LaserScan, queue_size=10)
+        self.odomPub = rospy.Publisher('odom', Odometry, queue_size=10)
 
-    def spin(self):        
+        self.buttonPub = rospy.Publisher('soft_button', Button, queue_size=100)
+        self.odomBroadcaster = TransformBroadcaster()
+        self.cmd_vel = [0,0]
+        self.old_vel = self.cmd_vel
+
+    def spin(self):
         encoders = [0,0]
 
         self.x = 0                  # position in xy plane
@@ -72,36 +73,35 @@ class NeatoNode:
         then = rospy.Time.now()
 
         # things that don't ever change
-        scan_link = rospy.get_param('~frame_id','base_laser_link')
-        scan = LaserScan(header=rospy.Header(frame_id=scan_link)) 
+        scan_link = rospy.get_param('~frame_id', 'base_laser_link')
+        scan = LaserScan(header=rospy.Header(frame_id=scan_link))
         scan.angle_min = -3.13
         scan.angle_max = +3.13
         scan.angle_increment = 0.017437326
         scan.range_min = 0.020
         scan.range_max = 5.0
-        
-	odom = Odometry(header=rospy.Header(frame_id="odom"), child_frame_id='base_link')
 
-	softb = Button()
-	
-	
+        odom = Odometry(header=rospy.Header(frame_id="odom"), child_frame_id='base_link')
+
+        button = Button()
+
+
         # main loop of driver
         r = rospy.Rate(5)
         while not rospy.is_shutdown():
-	    
-	    # get motor encoder values
+
+            # get motor encoder values
             left, right = self.robot.getMotors()
 
-	    # send updated movement commands
-	    if self.cmd_vel != self.old_vel:
-		self.robot.setMotors(self.cmd_vel[0], self.cmd_vel[1], max(abs(self.cmd_vel[0]),abs(self.cmd_vel[1])))
+            # send updated movement commands
+            if self.cmd_vel != self.old_vel:
+            self.robot.setMotors(self.cmd_vel[0], self.cmd_vel[1], max(abs(self.cmd_vel[0]), abs(self.cmd_vel[1])))
 
-	    # prepare laser scan
-            scan.header.stamp = rospy.Time.now()    
+            # prepare laser scan
+            scan.header.stamp = rospy.Time.now()
 
             scan.ranges = self.robot.getScanRanges()
-        
-            
+
             # now update position information
             dt = (scan.header.stamp - then).to_sec()
             then = scan.header.stamp
@@ -109,7 +109,7 @@ class NeatoNode:
             d_left = (left - encoders[0])/1000.0
             d_right = (right - encoders[1])/1000.0
             encoders = [left, right]
-            
+
             dx = (d_left+d_right)/2
             dth = (d_right-d_left)/(self.robot.base_width/1000.0)
 
@@ -134,27 +134,30 @@ class NeatoNode:
             odom.twist.twist.angular.z = dth/dt
 
 
-	    # sensors
-	    lsb,rsb,lfb,rfb = self.robot.getDigitalSensors()
-	    
-	    # buttons
-	    btn_soft,btn_scr_up,btn_start,btn_back,btn_scr_down = self.robot.getButtons()
-	    softb.value = btn_soft
-	    softb.name = "Soft_Button"
-            
-	    # publish everything
+            # sensors
+            lsb,rsb,lfb,rfb = self.robot.getDigitalSensors()
+
+            # buttons
+            btn_soft, btn_scr_up, btn_start, btn_back, btn_scr_down = self.robot.getButtons()
+
+
+            # publish everything
             self.odomBroadcaster.sendTransform( (self.x, self.y, 0), (quaternion.x, quaternion.y, quaternion.z, quaternion.w),
                 then, "base_link", "odom" )
             self.scanPub.publish(scan)
             self.odomPub.publish(odom)
-	    self.buttonPub.publish(softb)
+            for b in {btn_soft, btn_scr_up, btn_start, btn_back, btn_scr_down}:
+                button.value = b
+                button.name = "Soft_Button"
+                self.buttonPub.publish(button)
+
 
             # wait, then do it again
             r.sleep()
 
         # shut down
         self.robot.setLDS("off")
-        self.robot.setTestMode("off") 
+        self.robot.setTestMode("off")
 
     def cmdVelCb(self,req):
         x = req.linear.x * 1000
