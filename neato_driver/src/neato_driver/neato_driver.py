@@ -111,7 +111,7 @@ class Botvac():
         ranges = list()
         response = self.requestScan()
         for line in response.splitlines():
-            print line
+            #print line
             vals = line.split(",")
             # vals[[0] angle, vals[1] range, vals[2] intensity, vals[3] error code
             if len(vals) >= 2 and vals[0].isdigit() and vals[1].isdigit():
