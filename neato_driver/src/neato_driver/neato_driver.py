@@ -51,7 +51,7 @@ class Botvac():
     def __init__(self, port="/dev/ttyUSB0"):
         self.port = serial.Serial(port,115200)
         # Storage for motor and sensor information
-        self.state = {"LeftWheel_PositionInMM": 0, "RightWheel_PositionInMM": 0,"LSIDEBIT": 0,"RSIDEBIT": 0,"LFRONTBIT": 0,
+        self.state = {"FuelPercent":0, "LeftWheel_PositionInMM": 0, "RightWheel_PositionInMM": 0,"LSIDEBIT": 0,"RSIDEBIT": 0,"LFRONTBIT": 0,
                       "RFRONTBIT": 0,"BTN_SOFT_KEY": 0,"BTN_SCROLL_UP": 0,"BTN_START": 0,"BTN_BACK": 0,"BTN_SCROLL_DOWN": 0}
         self.stop_state = True
         
@@ -101,7 +101,7 @@ class Botvac():
             else:
                 response += buf
                 if buf[len(buf)-1] == self.crtl_z:
-                    break;
+                    break
         self.port.timeout = None
         return response
 
@@ -178,14 +178,15 @@ class Botvac():
         """ Update values for charger/battery related info in self.state dictionary. """
         self.port.write("getcharger\n")
         self.readResponseAndUpdateState()
+        return self.state["FuelPercent"]
 
     def setBacklight(self, value):
 
         if value > 0:
             self.port.write("setled backlighton")
         else:
-            self.port.write("setled backlightoff")
-        self.readResponseString()
+            self.port.write("setled backlighton")
+        #self.readResponseString()
 
     #SetLED - Sets the specified LED to on,off,blink, or dim. (TestMode Only)
     #BacklightOn - LCD Backlight On  (mutually exclusive of BacklightOff)

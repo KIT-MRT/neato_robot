@@ -86,7 +86,7 @@ class NeatoNode:
         button = Button()
         sensor = Sensor()
         self.robot.setBacklight(1)
-
+        print self.robot.getCharger()
         # main loop of driver
         r = rospy.Rate(5)
         while not rospy.is_shutdown():
