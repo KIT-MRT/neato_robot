@@ -164,6 +164,7 @@ class NeatoNode:
             r.sleep()
 
         # shut down
+        self.robot.setBacklight(0)
         self.robot.setLDS("off")
         self.robot.setTestMode("off")
 
