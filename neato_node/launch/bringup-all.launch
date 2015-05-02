@@ -4,7 +4,7 @@
 	
 
   <node name="neato" pkg="neato_node" type="neato.py" output="screen">
-    <param name="port" value="/dev/ttyBotsy" />
+    <param name="port" value="/dev/ttyUSB0" />
   </node>
   <include file="$(find neato_2dnav)/launch/move_base.launch" />
 
