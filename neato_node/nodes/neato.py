@@ -154,8 +154,7 @@ class NeatoNode:
                     button.name = button_enum[idx]
                     self.buttonPub.publish(button)
 
-
-            # wait, then do it again
+          # wait, then do it again
             r.sleep()
 
         # shut down
