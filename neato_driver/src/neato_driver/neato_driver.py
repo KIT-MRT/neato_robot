@@ -57,7 +57,7 @@ class Botvac():
         self.stop_state = True
         
         self.base_width = 248    # millimeters
-        self.max_speed = 300     # millimeters/second
+        self.max_speed = 100     # millimeters/second
         self.crtl_z = chr(26)
         # turn things on
         self.port.flushInput()
@@ -136,7 +136,7 @@ class Botvac():
                 s = 1
         else:
             self.stop_state = False
-        self.port.write("setmotor "+str(int(l))+" "+str(int(r))+" "+str(int(s))+"\n")
+        self.port.write("setmotor lwheeldist "+str(int(l))+" rightwheeldist "+str(int(r))+" speed "+str(int(s))+"\n")
 
     def readResponseAndUpdateState(self):
         """ Read neato's response and update self.state dictionary.
