@@ -49,7 +49,7 @@ response string: http://www.neatorobotics.com.au/programmer-s-manual
 class Botvac():
 
     def __init__(self, port="/dev/ttyUSB0"):
-        self.port = serial.Serial(port,115200)
+        self.port = serial.Serial(port,921600)
         # Storage for motor and sensor information
         self.state = {"FuelPercent": 0, "LeftWheel_PositionInMM": 0, "RightWheel_PositionInMM": 0, "LSIDEBIT": 0,
                       "RSIDEBIT": 0, "LFRONTBIT": 0, "RFRONTBIT": 0, "BTN_SOFT_KEY": 0, "BTN_SCROLL_UP": 0,
@@ -136,7 +136,7 @@ class Botvac():
                 s = 1
         else:
             self.stop_state = False
-        self.port.write("setmotor lwheeldist "+str(int(l))+" rightwheeldist "+str(int(r))+" speed "+str(int(s))+"\n")
+        self.port.write("setmotor lwheeldist "+str(int(l))+" rwheeldist "+str(int(r))+" speed "+str(int(s))+"\n")
 
     def readResponseAndUpdateState(self):
         """ Read neato's response and update self.state dictionary.
