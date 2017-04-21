@@ -36,6 +36,7 @@ import rospy
 from math import sin,cos
 
 from sensor_msgs.msg import LaserScan
+from sensor_msgs.msg import Range
 from neato_node.msg import Button, Sensor
 from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import Twist
@@ -60,6 +61,9 @@ class NeatoNode:
         self.odomPub = rospy.Publisher('odom', Odometry, queue_size=10)
         self.buttonPub = rospy.Publisher('button', Button, queue_size=10)
         self.sensorPub = rospy.Publisher('sensor', Sensor, queue_size=10)
+        self.wallPub = rospy.Publisher('wall', Range, queue_size=10)
+        self.drop_leftPub = rospy.Publisher('drop_left', Range, queue_size=10)
+        self.drop_rightPub = rospy.Publisher('drop_right', Range, queue_size=10)
         self.odomBroadcaster = TransformBroadcaster()
         self.cmd_vel = [0, 0]
         self.old_vel = self.cmd_vel
@@ -85,6 +89,11 @@ class NeatoNode:
 
         button = Button()
         sensor = Sensor()
+        range_sensor = Range()
+        range_sensor.radiation_type = 1
+        #range_sensor.field_of_view = 
+        range_sensor.min_range = 0.0
+        range_sensor.max_range = 0.255
         self.robot.setBacklight(1)
         # main loop of driver
         r = rospy.Rate(5)
@@ -144,8 +153,11 @@ class NeatoNode:
             odom.twist.twist.angular.z = dth/dt
 
 
-            # sensors
+            # digital sensors
             lsb, rsb, lfb, rfb = self.robot.getDigitalSensors()
+
+            # analog sensors
+            ax, ay, az, ml, mr, wall, drop_left, drop_right = self.robot.getAnalogSensors()
 
             # buttons
             btn_soft, btn_scr_up, btn_start, btn_back, btn_scr_down = self.robot.getButtons()
@@ -169,6 +181,12 @@ class NeatoNode:
                     sensor.value = b
                     sensor.name = sensor_enum[idx]
                     self.sensorPub.publish(sensor)
+            range_sensor.range = wall / 1000.0
+            self.wallPub.publish(range_sensor)
+            range_sensor.range = drop_left / 1000.0
+            self.drop_leftPub.publish(range_sensor)
+            range_sensor.range = drop_right / 1000.0
+            self.drop_rightPub.publish(range_sensor)
           # wait, then do it again
             r.sleep()
 

@@ -53,7 +53,9 @@ class Botvac():
         # Storage for motor and sensor information
         self.state = {"FuelPercent": 0, "LeftWheel_PositionInMM": 0, "RightWheel_PositionInMM": 0, "LSIDEBIT": 0,
                       "RSIDEBIT": 0, "LFRONTBIT": 0, "RFRONTBIT": 0, "BTN_SOFT_KEY": 0, "BTN_SCROLL_UP": 0,
-                      "BTN_START": 0, "BTN_BACK": 0, "BTN_SCROLL_DOWN": 0}
+                      "BTN_START": 0, "BTN_BACK": 0, "BTN_SCROLL_DOWN": 0, "AccelerometerX": 0, "AccelerometerY": 0,
+                      "AccelerometerZ": 0, "MagSensorLeft": 0, "MagSensorRight": 0, "WallSensor": 0, "DropSensorLeft":
+                      0, "DropSensorRight": 0}
         self.stop_state = True
         
         self.base_width = 248    # millimeters
@@ -63,7 +65,7 @@ class Botvac():
         self.port.flushInput()
         self.port.write("\n")
         self.setTestMode("on")
-        self.setLDS("on")
+        # self.setLDS("on")
 
     def exit(self):
         self.port.flushInput()
@@ -158,7 +160,15 @@ class Botvac():
     def getAnalogSensors(self):
         """ Update values for analog sensors in the self.state dictionary. """
         self.port.write("getanalogsensors\n")
-        self.readResponseAndUpdateState()
+        response = self.readResponseString()
+        for line in response.splitlines():
+            vals = line.split(",")
+            if len(vals) >= 3 and vals[0].replace('_', '').isalpha() and vals[2].replace('-', '').isdigit():
+                self.state[vals[0]] = int(vals[2])
+        return [self.state["AccelerometerX"], self.state["AccelerometerY"], self.state["AccelerometerZ"],
+        self.state["MagSensorLeft"], self.state["MagSensorRight"], self.state["WallSensor"],
+        self.state["DropSensorLeft"], self.state["DropSensorRight"]]
+        
 
     def getDigitalSensors(self):
         """ Update values for digital sensors in the self.state dictionary. """
