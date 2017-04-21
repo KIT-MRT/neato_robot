@@ -33,6 +33,8 @@ __author__ = "ferguson@cs.albany.edu (Michael Ferguson)"
 
 import roslib; roslib.load_manifest("neato_node")
 import rospy
+import sys
+import traceback
 from math import sin,cos
 
 from sensor_msgs.msg import LaserScan
@@ -95,106 +97,119 @@ class NeatoNode:
         range_sensor.min_range = 0.0
         range_sensor.max_range = 0.255
         self.robot.setBacklight(1)
+        self.robot.setLED("Info", "Blue", "Solid")
         # main loop of driver
         r = rospy.Rate(5)
-        while not rospy.is_shutdown():
-            # notify if low batt
-            charge = self.robot.getCharger()
-            if charge < 10:
-                #print "battery low " + str(self.robot.getCharger()) + "%"
-                self.robot.setLED("Battery", "Red", "Pulse")
-            elif charge < 25:
-                self.robot.setLED("Battery", "Yellow", "Solid")
-            else:
-                self.robot.setLED("Battery", "Green", "Solid")
+        try: 
+            while not rospy.is_shutdown():
+                # notify if low batt
+                charge = self.robot.getCharger()
+                if charge < 10:
+                    #print "battery low " + str(self.robot.getCharger()) + "%"
+                    self.robot.setLED("Battery", "Red", "Pulse")
+                elif charge < 25:
+                    self.robot.setLED("Battery", "Yellow", "Solid")
+                else:
+                    self.robot.setLED("Battery", "Green", "Solid")
 
 
-            # get motor encoder values
-            left, right = self.robot.getMotors()
+                # get motor encoder values
+                left, right = self.robot.getMotors()
 
-            # send updated movement commands
-            if self.cmd_vel != self.old_vel:
-                self.robot.setMotors(self.cmd_vel[0], self.cmd_vel[1], max(abs(self.cmd_vel[0]), abs(self.cmd_vel[1])))
+                # send updated movement commands
+                if self.cmd_vel != self.old_vel:
+                    self.robot.setMotors(self.cmd_vel[0], self.cmd_vel[1], max(abs(self.cmd_vel[0]), abs(self.cmd_vel[1])))
 
-            # prepare laser scan
-            scan.header.stamp = rospy.Time.now()
+                # prepare laser scan
+                scan.header.stamp = rospy.Time.now()
 
-            scan.ranges = self.robot.getScanRanges()
+                scan.ranges = self.robot.getScanRanges()
 
-            # now update position information
-            dt = (scan.header.stamp - then).to_sec()
-            then = scan.header.stamp
+                # now update position information
+                dt = (scan.header.stamp - then).to_sec()
+                then = scan.header.stamp
 
-            d_left = (left - encoders[0])/1000.0
-            d_right = (right - encoders[1])/1000.0
-            encoders = [left, right]
+                d_left = (left - encoders[0])/1000.0
+                d_right = (right - encoders[1])/1000.0
+                encoders = [left, right]
 
-            dx = (d_left+d_right)/2
-            dth = (d_right-d_left)/(self.robot.base_width/1000.0)
+                dx = (d_left+d_right)/2
+                dth = (d_right-d_left)/(self.robot.base_width/1000.0)
 
-            x = cos(dth)*dx
-            y = -sin(dth)*dx
-            self.x += cos(self.th)*x - sin(self.th)*y
-            self.y += sin(self.th)*x + cos(self.th)*y
-            self.th += dth
+                x = cos(dth)*dx
+                y = -sin(dth)*dx
+                self.x += cos(self.th)*x - sin(self.th)*y
+                self.y += sin(self.th)*x + cos(self.th)*y
+                self.th += dth
 
-            # prepare tf from base_link to odom
-            quaternion = Quaternion()
-            quaternion.z = sin(self.th/2.0)
-            quaternion.w = cos(self.th/2.0)
+                # prepare tf from base_link to odom
+                quaternion = Quaternion()
+                quaternion.z = sin(self.th/2.0)
+                quaternion.w = cos(self.th/2.0)
 
-            # prepare odometry
-            odom.header.stamp = rospy.Time.now()
-            odom.pose.pose.position.x = self.x
-            odom.pose.pose.position.y = self.y
-            odom.pose.pose.position.z = 0
-            odom.pose.pose.orientation = quaternion
-            odom.twist.twist.linear.x = dx/dt
-            odom.twist.twist.angular.z = dth/dt
-
-
-            # digital sensors
-            lsb, rsb, lfb, rfb = self.robot.getDigitalSensors()
-
-            # analog sensors
-            ax, ay, az, ml, mr, wall, drop_left, drop_right = self.robot.getAnalogSensors()
-
-            # buttons
-            btn_soft, btn_scr_up, btn_start, btn_back, btn_scr_down = self.robot.getButtons()
+                # prepare odometry
+                odom.header.stamp = rospy.Time.now()
+                odom.pose.pose.position.x = self.x
+                odom.pose.pose.position.y = self.y
+                odom.pose.pose.position.z = 0
+                odom.pose.pose.orientation = quaternion
+                odom.twist.twist.linear.x = dx/dt
+                odom.twist.twist.angular.z = dth/dt
 
 
-            # publish everything
-            self.odomBroadcaster.sendTransform((self.x, self.y, 0), (quaternion.x, quaternion.y, quaternion.z,
-                                                                     quaternion.w), then, "base_link", "odom")
-            self.scanPub.publish(scan)
-            self.odomPub.publish(odom)
-            button_enum = ("Soft_Button", "Up_Button", "Start_Button", "Back_Button", "Down_Button")
-            sensor_enum = ("Left_Side_Bumper", "Right_Side_Bumper", "Left_Bumper", "Right_Bumper")
-            for idx, b in enumerate((btn_soft, btn_scr_up, btn_start, btn_back, btn_scr_down)):
-                if b == 1:
-                    button.value = b
-                    button.name = button_enum[idx]
-                    self.buttonPub.publish(button)
+                # digital sensors
+                lsb, rsb, lfb, rfb = self.robot.getDigitalSensors()
 
-            for idx, b in enumerate((lsb, rsb, lfb, rfb)):
-                if b == 1:
-                    sensor.value = b
-                    sensor.name = sensor_enum[idx]
-                    self.sensorPub.publish(sensor)
-            range_sensor.range = wall / 1000.0
-            self.wallPub.publish(range_sensor)
-            range_sensor.range = drop_left / 1000.0
-            self.drop_leftPub.publish(range_sensor)
-            range_sensor.range = drop_right / 1000.0
-            self.drop_rightPub.publish(range_sensor)
-          # wait, then do it again
-            r.sleep()
+                # analog sensors
+                ax, ay, az, ml, mr, wall, drop_left, drop_right = self.robot.getAnalogSensors()
 
-        # shut down
-        self.robot.setBacklight(0)
-        self.robot.setLED("Battery", "Green", "Off")
-        self.robot.setLDS("off")
-        self.robot.setTestMode("off")
+                # buttons
+                btn_soft, btn_scr_up, btn_start, btn_back, btn_scr_down = self.robot.getButtons()
+
+
+                # publish everything
+                self.odomBroadcaster.sendTransform((self.x, self.y, 0), (quaternion.x, quaternion.y, quaternion.z,
+                                                                         quaternion.w), then, "base_link", "odom")
+                self.scanPub.publish(scan)
+                self.odomPub.publish(odom)
+                button_enum = ("Soft_Button", "Up_Button", "Start_Button", "Back_Button", "Down_Button")
+                sensor_enum = ("Left_Side_Bumper", "Right_Side_Bumper", "Left_Bumper", "Right_Bumper")
+                for idx, b in enumerate((btn_soft, btn_scr_up, btn_start, btn_back, btn_scr_down)):
+                    if b == 1:
+                        button.value = b
+                        button.name = button_enum[idx]
+                        self.buttonPub.publish(button)
+
+                for idx, b in enumerate((lsb, rsb, lfb, rfb)):
+                    if b == 1:
+                        sensor.value = b
+                        sensor.name = sensor_enum[idx]
+                        self.sensorPub.publish(sensor)
+                range_sensor.range = wall / 1000.0
+                self.wallPub.publish(range_sensor)
+                range_sensor.range = drop_left / 1000.0
+                self.drop_leftPub.publish(range_sensor)
+                range_sensor.range = drop_right / 1000.0
+                self.drop_rightPub.publish(range_sensor)
+              # wait, then do it again
+                r.sleep()
+
+            # shut down
+            self.robot.setMotors(0,0,0)
+            self.robot.setBacklight(0)
+            self.robot.setLED("Battery", "Green", "Off")
+            self.robot.setLED("Info", "Blue", "Off")
+            self.robot.setLDS("off")
+            self.robot.setTestMode("off")
+        except:
+            exc_info = sys.exc_info()
+            traceback.print_exception(*exc_info)
+            self.robot.setMotors(0,0,0)
+            self.robot.setBacklight(0)
+            self.robot.setLED("Battery", "Green", "Off")
+            self.robot.setLED("Info", "Red", "Solid")
+            self.robot.setLDS("off")
+            self.robot.setTestMode("off")
 
     def cmdVelCb(self,req):
         x = req.linear.x * 1000
