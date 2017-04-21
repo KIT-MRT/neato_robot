@@ -42,6 +42,7 @@ from sensor_msgs.msg import Range
 from neato_node.msg import Button, Sensor
 from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Vector3Stamped
 from nav_msgs.msg import Odometry
 from tf.broadcaster import TransformBroadcaster
 
@@ -63,6 +64,7 @@ class NeatoNode:
         self.odomPub = rospy.Publisher('odom', Odometry, queue_size=10)
         self.buttonPub = rospy.Publisher('button', Button, queue_size=10)
         self.sensorPub = rospy.Publisher('sensor', Sensor, queue_size=10)
+        self.accelerationPub = rospy.Publisher('acceleration', Vector3Stamped, queue_size=10)
         self.wallPub = rospy.Publisher('wall', Range, queue_size=10)
         self.drop_leftPub = rospy.Publisher('drop_left', Range, queue_size=10)
         self.drop_rightPub = rospy.Publisher('drop_right', Range, queue_size=10)
@@ -96,6 +98,7 @@ class NeatoNode:
         #range_sensor.field_of_view = 
         range_sensor.min_range = 0.0
         range_sensor.max_range = 0.255
+        acceleration = Vector3Stamped()
         self.robot.setBacklight(1)
         self.robot.setLED("Info", "Blue", "Solid")
         # main loop of driver
@@ -162,6 +165,12 @@ class NeatoNode:
 
                 # analog sensors
                 ax, ay, az, ml, mr, wall, drop_left, drop_right = self.robot.getAnalogSensors()
+                acceleration.header.stamp = rospy.Time.now()
+                # convert mG to m/s^2
+                acceleration.vector.x = ax * 9.80665/1000.0
+                acceleration.vector.y = ay * 9.80665/1000.0
+                acceleration.vector.z = az * 9.80665/1000.0
+                range_sensor.header.stamp = rospy.Time.now()
 
                 # buttons
                 btn_soft, btn_scr_up, btn_start, btn_back, btn_scr_down = self.robot.getButtons()
@@ -185,6 +194,9 @@ class NeatoNode:
                         sensor.value = b
                         sensor.name = sensor_enum[idx]
                         self.sensorPub.publish(sensor)
+
+                self.accelerationPub.publish(acceleration)
+                
                 range_sensor.range = wall / 1000.0
                 self.wallPub.publish(range_sensor)
                 range_sensor.range = drop_left / 1000.0
