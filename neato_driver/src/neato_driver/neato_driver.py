@@ -187,6 +187,7 @@ class Botvac():
         #self.readResponseString()
 
     def setLED(self, value):
+        """ for older Neatos """
 
         if value == "Green":
             self.port.write("setled ButtonGreen\n")
@@ -201,5 +202,32 @@ class Botvac():
         if value == "DimAmber":
             self.port.write("setled ButtonAmberDim\n")
 
+    def setLED(self, led, color, status):
+        """ for Botvac D5 Connected
+        led "Battery" supports Green, Yellow an Red led "Info" supports Blue, Purple an Red
+        status supports Sold, Blink, Pulse, Off and DimSolid or BlinkFast """
+
+        if led == "Battery":
+            if status == "Off":
+                self.port.write("setled Led12Off\n")
+            else:
+                if color == "Green":
+                    self.port.write("setled Led1" + status + "\n")
+                if color == "Yellow":
+                    self.port.write("setled Led12" + status + "\n")
+                if color == "Red":
+                    self.port.write("setled Led2" + status + "\n")
+        elif led == "Info":
+            if status == "Off":
+                self.port.write("setled Led34Off\n")
+            else:
+                if color == "Blue":
+                    self.port.write("setled Led3" + status + "\n")
+                if color == "Purple":
+                    self.port.write("setled Led34" + status + "\n")
+                if color == "Red":
+                    self.port.write("setled Led4" + status + "\n")
+        #else:
+            # error, led not supported
 
 
