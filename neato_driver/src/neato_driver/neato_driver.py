@@ -52,10 +52,10 @@ class Botvac():
         self.port = serial.Serial(port,921600)
         # Storage for motor and sensor information
         self.state = {"FuelPercent": 0, "LeftWheel_PositionInMM": 0, "RightWheel_PositionInMM": 0, "LSIDEBIT": 0,
-                      "RSIDEBIT": 0, "LFRONTBIT": 0, "RFRONTBIT": 0, "BTN_SOFT_KEY": 0, "BTN_SCROLL_UP": 0,
-                      "BTN_START": 0, "BTN_BACK": 0, "BTN_SCROLL_DOWN": 0, "AccelerometerX": 0, "AccelerometerY": 0,
-                      "AccelerometerZ": 0, "MagSensorLeft": 0, "MagSensorRight": 0, "WallSensor": 0, "DropSensorLeft":
-                      0, "DropSensorRight": 0}
+                "RSIDEBIT": 0, "LFRONTBIT": 0, "RFRONTBIT": 0, "SNSR_LEFT_WHEEL_EXTENDED":0, 
+                "SNSR_RIGHT_WHEEL_EXTENDED":0, "BTN_SOFT_KEY": 0, "BTN_SCROLL_UP": 0, "BTN_START": 0, "BTN_BACK": 0, 
+                "BTN_SCROLL_DOWN": 0, "AccelerometerX": 0, "AccelerometerY": 0, "AccelerometerZ": 0, 
+                "MagSensorLeft": 0, "MagSensorRight": 0, "WallSensor": 0, "DropSensorLeft": 0, "DropSensorRight": 0}
         self.stop_state = True
         
         self.base_width = 248    # millimeters
@@ -174,7 +174,8 @@ class Botvac():
         """ Update values for digital sensors in the self.state dictionary. """
         self.port.write("getdigitalsensors\n")
         self.readResponseAndUpdateState()
-        return [self.state["LSIDEBIT"], self.state["RSIDEBIT"], self.state["LFRONTBIT"], self.state["RFRONTBIT"]]
+        return [self.state["LSIDEBIT"], self.state["RSIDEBIT"], self.state["LFRONTBIT"], self.state["RFRONTBIT"],
+                self.state["SNSR_LEFT_WHEEL_EXTENDED"], self.state["SNSR_RIGHT_WHEEL_EXTENDED"]]
 
     def getButtons(self):
         """ Update values for digital buttons in the self.state dictionary. """

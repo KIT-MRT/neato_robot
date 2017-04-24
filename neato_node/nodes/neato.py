@@ -121,10 +121,6 @@ class NeatoNode:
                 # get motor encoder values
                 left, right = self.robot.getMotors()
 
-                # send updated movement commands
-                if self.cmd_vel != self.old_vel:
-                    self.robot.setMotors(self.cmd_vel[0], self.cmd_vel[1], max(abs(self.cmd_vel[0]), abs(self.cmd_vel[1])))
-
                 # prepare laser scan
                 scan.header.stamp = rospy.Time.now()
 
@@ -163,7 +159,7 @@ class NeatoNode:
 
 
                 # digital sensors
-                lsb, rsb, lfb, rfb = self.robot.getDigitalSensors()
+                lsb, rsb, lfb, rfb, lw, rw = self.robot.getDigitalSensors()
 
                 # analog sensors
                 ax, ay, az, ml, mr, wall, drop_left, drop_right = self.robot.getAnalogSensors()
@@ -176,6 +172,13 @@ class NeatoNode:
 
                 # buttons
                 btn_soft, btn_scr_up, btn_start, btn_back, btn_scr_down = self.robot.getButtons()
+
+                # send updated movement commands
+                if self.violate_safety_constraints(drop_left, drop_right, ml, mr, lw, rw, lsb, rsb, lfb, rfb):
+                    self.robot.setMotors(0, 0, 0);
+                    self.cmd_vel = [0, 0]
+                elif self.cmd_vel != self.old_vel:
+                    self.robot.setMotors(self.cmd_vel[0], self.cmd_vel[1], max(abs(self.cmd_vel[0]), abs(self.cmd_vel[1])))
 
 
                 # publish everything
@@ -240,6 +243,17 @@ class NeatoNode:
         if k > self.robot.max_speed:
             x = x*self.robot.max_speed/k; th = th*self.robot.max_speed/k
         self.cmd_vel = [int(x-th), int(x+th)]
+
+    def violate_safety_constraints(left_drop, right_drop, *digital_sensors ):
+        if left_drop > 30 or right_drop > 30:
+            print "safety constraint violated by drop sensor"
+            return True
+        else:
+            for sensor in digital_sensors:
+                if sensor == 1:
+                    print "safety constraint violated by digital sensor"
+                    return True
+        return False
 
 if __name__ == "__main__":    
     robot = NeatoNode()
