@@ -187,14 +187,15 @@ class NeatoNode:
                 self.scanPub.publish(scan)
                 self.odomPub.publish(odom)
                 button_enum = ("Soft_Button", "Up_Button", "Start_Button", "Back_Button", "Down_Button")
-                sensor_enum = ("Left_Side_Bumper", "Right_Side_Bumper", "Left_Bumper", "Right_Bumper")
+                sensor_enum = ("Left_Side_Bumper", "Right_Side_Bumper", "Left_Bumper", "Right_Bumper", "Left_Wheel",
+                "Right_Wheel")
                 for idx, b in enumerate((btn_soft, btn_scr_up, btn_start, btn_back, btn_scr_down)):
                     if b == 1:
                         button.value = b
                         button.name = button_enum[idx]
                         self.buttonPub.publish(button)
 
-                for idx, b in enumerate((lsb, rsb, lfb, rfb)):
+                for idx, b in enumerate((lsb, rsb, lfb, rfb, lw, rw)):
                     if b == 1:
                         sensor.value = b
                         sensor.name = sensor_enum[idx]
