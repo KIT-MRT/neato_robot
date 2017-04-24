@@ -68,6 +68,7 @@ class NeatoNode:
         self.wallPub = rospy.Publisher('wall', Range, queue_size=10)
         self.drop_leftPub = rospy.Publisher('drop_left', Range, queue_size=10)
         self.drop_rightPub = rospy.Publisher('drop_right', Range, queue_size=10)
+        self.magneticPub = rospy.Publisher('magnetic', Sensor, queue_size=10)
         self.odomBroadcaster = TransformBroadcaster()
         self.cmd_vel = [0, 0]
         self.old_vel = self.cmd_vel
@@ -93,6 +94,7 @@ class NeatoNode:
 
         button = Button()
         sensor = Sensor()
+        magnetic = Sensor()
         range_sensor = Range()
         range_sensor.radiation_type = 1
         #range_sensor.field_of_view = 
@@ -203,6 +205,13 @@ class NeatoNode:
                 self.drop_leftPub.publish(range_sensor)
                 range_sensor.range = drop_right / 1000.0
                 self.drop_rightPub.publish(range_sensor)
+
+                magnetic_enum = ("Left_Sensor", "Right_Sensor")
+                for idx, val in enumerate((ml, mr)):
+                    magnetic.value = val
+                    magnetic.name = magnetic_enum[idx]
+                    self.magneticPub.publish(magnetic)
+
               # wait, then do it again
                 r.sleep()
 
