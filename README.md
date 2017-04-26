@@ -15,5 +15,7 @@ You can check this out into your catkin workspace as follows:
 
 ## Changes in this fork
 
- * The driver has been update to support a wider range of neato models and firmware versions including the Neato's Botvac line.
- * This ROS node works with Indigo. The required third parameter to rospy.Publisher() has been supplied.
+ * The driver has been update to support Neato's Botvac D5 Connected, most functionality should work with other Neato's too.
+ * It publishes most sensor data including distance sensors, magnetic sensors, acceleration data, etc. 
+ * and contains elementary safety features: stopping at walls, stairs and Neato's magnetic strips.
+ * This ROS node works with Kinetic. 

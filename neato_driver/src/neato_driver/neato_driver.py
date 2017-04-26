@@ -49,15 +49,17 @@ response string: http://www.neatorobotics.com.au/programmer-s-manual
 class Botvac():
 
     def __init__(self, port="/dev/ttyUSB0"):
-        self.port = serial.Serial(port,115200)
+        self.port = serial.Serial(port,921600)
         # Storage for motor and sensor information
         self.state = {"FuelPercent": 0, "LeftWheel_PositionInMM": 0, "RightWheel_PositionInMM": 0, "LSIDEBIT": 0,
-                      "RSIDEBIT": 0, "LFRONTBIT": 0, "RFRONTBIT": 0, "BTN_SOFT_KEY": 0, "BTN_SCROLL_UP": 0,
-                      "BTN_START": 0, "BTN_BACK": 0, "BTN_SCROLL_DOWN": 0}
+                "RSIDEBIT": 0, "LFRONTBIT": 0, "RFRONTBIT": 0, "SNSR_LEFT_WHEEL_EXTENDED":0, 
+                "SNSR_RIGHT_WHEEL_EXTENDED":0, "BTN_SOFT_KEY": 0, "BTN_SCROLL_UP": 0, "BTN_START": 0, "BTN_BACK": 0, 
+                "BTN_SCROLL_DOWN": 0, "AccelerometerX": 0, "AccelerometerY": 0, "AccelerometerZ": 0, 
+                "MagSensorLeft": 0, "MagSensorRight": 0, "WallSensor": 0, "DropSensorLeft": 0, "DropSensorRight": 0}
         self.stop_state = True
         
         self.base_width = 248    # millimeters
-        self.max_speed = 300     # millimeters/second
+        self.max_speed = 100     # millimeters/second
         self.crtl_z = chr(26)
         # turn things on
         self.port.flushInput()
@@ -136,7 +138,7 @@ class Botvac():
                 s = 1
         else:
             self.stop_state = False
-        self.port.write("setmotor "+str(int(l))+" "+str(int(r))+" "+str(int(s))+"\n")
+        self.port.write("setmotor lwheeldist "+str(int(l))+" rwheeldist "+str(int(r))+" speed "+str(int(s))+"\n")
 
     def readResponseAndUpdateState(self):
         """ Read neato's response and update self.state dictionary.
@@ -158,13 +160,22 @@ class Botvac():
     def getAnalogSensors(self):
         """ Update values for analog sensors in the self.state dictionary. """
         self.port.write("getanalogsensors\n")
-        self.readResponseAndUpdateState()
+        response = self.readResponseString()
+        for line in response.splitlines():
+            vals = line.split(",")
+            if len(vals) >= 3 and vals[0].replace('_', '').isalpha() and vals[2].replace('-', '').isdigit():
+                self.state[vals[0]] = int(vals[2])
+        return [self.state["AccelerometerX"], self.state["AccelerometerY"], self.state["AccelerometerZ"],
+        self.state["MagSensorLeft"], self.state["MagSensorRight"], self.state["WallSensor"],
+        self.state["DropSensorLeft"], self.state["DropSensorRight"]]
+        
 
     def getDigitalSensors(self):
         """ Update values for digital sensors in the self.state dictionary. """
         self.port.write("getdigitalsensors\n")
         self.readResponseAndUpdateState()
-        return [self.state["LSIDEBIT"], self.state["RSIDEBIT"], self.state["LFRONTBIT"], self.state["RFRONTBIT"]]
+        return [self.state["LSIDEBIT"], self.state["RSIDEBIT"], self.state["LFRONTBIT"], self.state["RFRONTBIT"],
+                self.state["SNSR_LEFT_WHEEL_EXTENDED"], self.state["SNSR_RIGHT_WHEEL_EXTENDED"]]
 
     def getButtons(self):
         """ Update values for digital buttons in the self.state dictionary. """
@@ -187,6 +198,7 @@ class Botvac():
         #self.readResponseString()
 
     def setLED(self, value):
+        """ for older Neatos """
 
         if value == "Green":
             self.port.write("setled ButtonGreen\n")
@@ -201,5 +213,32 @@ class Botvac():
         if value == "DimAmber":
             self.port.write("setled ButtonAmberDim\n")
 
+    def setLED(self, led, color, status):
+        """ for Botvac D5 Connected
+        led "Battery" supports Green, Yellow an Red led "Info" supports Blue, Purple an Red
+        status supports Sold, Blink, Pulse, Off and DimSolid or BlinkFast """
+
+        if led == "Battery":
+            if status == "Off":
+                self.port.write("setled Led12Off\n")
+            else:
+                if color == "Green":
+                    self.port.write("setled Led1" + status + "\n")
+                if color == "Yellow":
+                    self.port.write("setled Led12" + status + "\n")
+                if color == "Red":
+                    self.port.write("setled Led2" + status + "\n")
+        elif led == "Info":
+            if status == "Off":
+                self.port.write("setled Led34Off\n")
+            else:
+                if color == "Blue":
+                    self.port.write("setled Led3" + status + "\n")
+                if color == "Purple":
+                    self.port.write("setled Led34" + status + "\n")
+                if color == "Red":
+                    self.port.write("setled Led4" + status + "\n")
+        #else:
+            # error, led not supported
 
 
