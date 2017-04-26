@@ -65,7 +65,7 @@ class Botvac():
         self.port.flushInput()
         self.port.write("\n")
         self.setTestMode("on")
-        # self.setLDS("on")
+        self.setLDS("on")
 
     def exit(self):
         self.port.flushInput()
