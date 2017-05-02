@@ -242,3 +242,50 @@ class Botvac():
             # error, led not supported
 
 
+    def getAllCommands(self):
+        """ Extract a list of commands from the help command """
+        self.port.flushInput()
+        self.port.flushOutput()
+        self.port.write("help\n")
+        response = self.readResponseString()
+        #print "help:\n" + response
+        commands = []
+        for line in response.splitlines():
+            vals = line.split(" - ")
+            if len(vals) >= 2:
+                commands.append(vals[0])
+                #print "command found: " + vals[0]
+        return commands
+
+    class CommandDescription():
+        def __init__(self, name):
+            self.command = name
+            self.description = ""
+            self.arguments = {}
+    
+        def addArgument(self, arg, description):
+            self.arguments[arg] = description
+
+    def getCommandDescription(self, c):
+        """ Extract a list of commands from the help command """
+        self.port.flushInput()
+        self.port.flushOutput()
+        self.port.write("help " + c + "\n")
+        response = self.readResponseString()
+        #print "documentation of " + command + ":\n" + response
+        command = Botvac.CommandDescription(c)
+        current_argument = ""
+        for line in response.splitlines():
+            vals = line.split(" - ")
+            if "    " in line and "      " not in line and len(vals) == 2:
+                command.addArgument(vals[0], vals[1])
+                current_argument = vals[0]
+            elif "help " not in line and self.crtl_z not in line:
+                if current_argument not in "":
+                    command.arguments[current_argument] += " <br> " + line
+                elif len(vals) ==2 and c in vals[0]:
+                    command.description += "" + vals[1]
+                else: 
+                    command.description += " <br> " + line
+        return command
+
