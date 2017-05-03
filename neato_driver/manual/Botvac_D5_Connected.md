@@ -1,4 +1,4 @@
-#Documentation of Neato's serial port interface
+# Documentation of Neato's serial port interface
 ## Communication through the USB port
 
 Remove dust filter and plug in a USB cable to the USB port and to 
@@ -25,7 +25,7 @@ with a title line. Each response ends with control-z
 
 The following commands are supported by the robot:
 
-###Help
+### Help
 
 **Description:** Without any argument, this prints a list of all possible cmds.
 
@@ -36,7 +36,7 @@ The following commands are supported by the robot:
 |     Cmd | (Optional) Next argument is command to show help for. |
 
 
-###Clean
+### Clean
 
 **Description:** Starts a cleaning by simulating press of start button.
 
@@ -51,7 +51,7 @@ The following commands are supported by the robot:
 |     Width | (Optional) Spot Width in CM (100-400)(-1=use default). |
 
 
-###ClearFiles
+### ClearFiles
 
 **Description:** Erases Black Box, and other Logs
 
@@ -63,7 +63,7 @@ The following commands are supported by the robot:
 |     All | (Optional) Additionally clears unmanaged files (Crash, ...) in the specified directories. <br>  |
 
 
-###DiagTest
+### DiagTest
 
 **Description:** Executes different test modes. Once set, press Start button to engage. (Test modes are mutually exclusive.)
 
@@ -92,7 +92,7 @@ The following commands are supported by the robot:
 |     LDSOn | Turns on LDS during test. May conflict with motor commands of test so use carefully! <br>  |
 
 
-###GenerateRobotLinkCode
+### GenerateRobotLinkCode
 
 **Description:** Generate and send robot linking code to server.
 
@@ -104,7 +104,7 @@ The following commands are supported by the robot:
 |     SerialNumber | The serial number of the robot |
 
 
-###GetConfiguredWifiNetworks
+### GetConfiguredWifiNetworks
 
 **Description:** Get the list of configured wifi networks.
 
@@ -115,7 +115,7 @@ The following commands are supported by the robot:
 |     brief | Returns Wifi Configuration. Data order: <br>       SSID <br>       signal strength <br>  |
 
 
-###GetRobotLinkCode
+### GetRobotLinkCode
 
 **Description:** Get the robot linking code
 
@@ -126,7 +126,7 @@ The following commands are supported by the robot:
 |     brief | Get the robot linking code. <br>       Value: <value to enter at server> <br>       Expiry Time: <how long it will be valid for in seconds>  <br>  |
 
 
-###CancelRobotLink
+### CancelRobotLink
 
 **Description:** Cancel link request.
 
@@ -138,7 +138,7 @@ The following commands are supported by the robot:
 |     SerialNumber | The serial number of the robot |
 
 
-###SetNTPTime
+### SetNTPTime
 
 **Description:** Set system time using the NTP servers (WIFI must be up for this to work)
 
@@ -149,7 +149,7 @@ The following commands are supported by the robot:
 |     brief | Instruct Astro to get the time from an NTP Server <br>  |
 
 
-###GetAccel
+### GetAccel
 
 **Description:** Get the Accelerometer readings.
 
@@ -160,7 +160,7 @@ The following commands are supported by the robot:
 |     brief | Returns a single-line summary. Data order: <br>       Revision(0) <br>       Pitch <br>       Roll <br>       X Axis <br>       Y Axis <br>       Z Axis <br>  |
 
 
-###GetAnalogSensors
+### GetAnalogSensors
 
 **Description:** Get the A2D readings for the analog sensors.
 
@@ -174,7 +174,7 @@ The following commands are supported by the robot:
 |     nSamples | Number of samples of data to take for stats. Default (N_STAT_SAMPLES) is 50. Limit is 200. |
 
 
-###GetButtons
+### GetButtons
 
 **Description:** Get the state of the UI Buttons.
 
@@ -185,15 +185,15 @@ The following commands are supported by the robot:
 |     brief | Returns a single-line summary. Data order: <br>       Revision(0) <br>       Soft key <br>       Up <br>       Start <br>       Back <br>       Down <br>       Spot <br>  |
 
 
-###GetCalInfo
+### GetCalInfo
 
 **Description:** Prints out the cal info from the System Control Block.
 
-###GetCharger
+### GetCharger
 
 **Description:** Get the diagnostic data for the charging system.
 
-###GetDigitalSensors
+### GetDigitalSensors
 
 **Description:** Get the state of the digital sensors.
 
@@ -204,7 +204,7 @@ The following commands are supported by the robot:
 |     brief | Returns a single-line summary. Data order: <br>       Data Format Revision <br>       DC Jack <br>       Dustbin <br>       Left Wheel <br>       Right Wheel <br>       Left Side Bumper <br>       Left Front Bumper <br>       Right Side Bumper <br>       Right Front Bumper <br>  |
 
 
-###GetErr
+### GetErr
 
 **Description:** Get Error Message.
 
@@ -215,11 +215,11 @@ The following commands are supported by the robot:
 |     Clear | Dismiss the reported error. |
 
 
-###GetLDSScan
+### GetLDSScan
 
 **Description:** Get scan packet from LDS.
 
-###GetMotors
+### GetMotors
 
 **Description:** Get the diagnostic data for the motors.
 
@@ -236,7 +236,7 @@ The following commands are supported by the robot:
 |     RightWheel | Return RightWheel Motor stats. |
 
 
-###GetSensor
+### GetSensor
 
 **Description:** Gets the sensors status ON/OFF (Wall Follower and Ultra Sound Only)
 
@@ -250,27 +250,27 @@ The following commands are supported by the robot:
 |     Drop | Reports drop sensor status |
 
 
-###GetTime
+### GetTime
 
 **Description:** Get Current Scheduler Time.
 
-###GetVersion
+### GetVersion
 
 **Description:** Get the version information for the system software and hardware.
 
-###GetWarranty
+### GetWarranty
 
 **Description:** Get the warranty data.
 
-###GetWifiInfo
+### GetWifiInfo
 
 **Description:** Get a list of available wifi networks.
 
-###GetWifiStatus
+### GetWifiStatus
 
 **Description:** Get the current status of the wifi.
 
-###GetUserSettings
+### GetUserSettings
 
 **Description:** Get the user settings.
 
@@ -293,7 +293,7 @@ The following commands are supported by the robot:
 |     StealthLED | Returns status of LEDs in standby mode (ON/OFF) |
 
 
-###GetUsage
+### GetUsage
 
 **Description:** Get usage settings
 
@@ -309,7 +309,7 @@ The following commands are supported by the robot:
 |     MainBrushArea | Returns the life of main brush in area. |
 
 
-###PlaySound
+### PlaySound
 
 **Description:** Play the specified sound in the robot.
 
@@ -321,11 +321,11 @@ The following commands are supported by the robot:
 |     SoundID | Play the sound library entry specified by the number in the next argument. <br>  <br>     Legal values are: <br>  <br>        0 - Waking Up <br>        1 - Starting Cleaning <br>        2 - Cleaning Completed <br>        3 - Attention Needed <br>        4 - Backing up into base station <br>        5 - Base Station Docking Completed <br>        6 - Test Sound 1 <br>        7 - Exploring <br>        8 - ShutDown <br>        9 - Picked Up <br>        10 - Going to sleep <br>        11 - Returning Home <br>        12 - User Canceled Cleaning <br>        13 - User Terminated Cleaning <br>        14 - Slipped Off Base While Charging <br>        15 - Alert <br>        16 - Thank You <br>        17 - Button Press <br>        18 - US speed modifier engaged <br>        19 - US bump engaged <br>        20 - Find me <br>        21 - Easy Connect Success <br>  |
 
 
-###SetBatteryTest
+### SetBatteryTest
 
 **Description:** Sets California Energy Commission 10-CFR-430 Battery Charging System Test mode.
 
-###SetButton
+### SetButton
 
 **Description:** Simulates a button press.
 
@@ -349,7 +349,7 @@ The following commands are supported by the robot:
 |     start | Simulate pressing the start button |
 
 
-###SetFuelGauge
+### SetFuelGauge
 
 **Description:** Set Fuel Gauge Level.
 
@@ -360,7 +360,7 @@ The following commands are supported by the robot:
 |     Percent | Fuel Gauge percent from -100 to 100 |
 
 
-###SetIEC
+### SetIEC
 
 **Description:** Sets the IEC Cleaning Test parameters
 
@@ -374,11 +374,11 @@ The following commands are supported by the robot:
 |     HardSpeed | Next Arg is test speed on hard floors (10-300mm/s) |
 
 
-###SetLCD
+### SetLCD
 
 **Description:** Sets the LCD to the specified display. (TestMode Only)
 
-###SetLED
+### SetLED
 
 **Description:** Sets the specified LED to on,off,blink, or dim. (TestMode Only)
 
@@ -414,7 +414,7 @@ The following commands are supported by the robot:
 |     Led1DimSolid | Set the 1st LED (BATT Green) to solid with dim |
 
 
-###SetLDSRotation
+### SetLDSRotation
 
 **Description:** Sets LDS rotation on or off. Can only be run in TestMode.
 
@@ -426,7 +426,7 @@ The following commands are supported by the robot:
 |     On | Turns LDS rotation on. Mutually exclusive with Off. <br>  |
 
 
-###SetMotor
+### SetMotor
 
 **Description:** Sets the specified motor to run in a direction at a requested speed. (TestMode Only)
 
@@ -456,7 +456,7 @@ The following commands are supported by the robot:
 |     SideBrushEnable | Enable Side Brush Motor motor |
 
 
-###SetSystemMode
+### SetSystemMode
 
 **Description:** Set the operation mode of the robot. (TestMode Only)
 
@@ -470,7 +470,7 @@ The following commands are supported by the robot:
 |     Hibernate | Start hibernate operation.(mutually exclusive of other options) |
 
 
-###SetTime
+### SetTime
 
 **Description:** Sets the current day, hour, and minute for the scheduler clock.
 
@@ -484,7 +484,7 @@ The following commands are supported by the robot:
 |     Min | Minutes value 0..59 (required) |
 
 
-###SetUserSettings
+### SetUserSettings
 
 **Description:** Sets user settings
 
@@ -514,7 +514,7 @@ The following commands are supported by the robot:
 |     ON | Enable  (Mutually exclusive with OFF) |
 
 
-###SetUsage
+### SetUsage
 
 **Description:** Sets usage settings
 
@@ -528,11 +528,11 @@ The following commands are supported by the robot:
 |     Filter | Set filter life time. |
 
 
-###SetWifi
+### SetWifi
 
 **Description:** SetWifi variables
 
-###TestMode
+### TestMode
 
 **Description:** Sets TestMode on or off. Some commands can only be run in TestMode.
 
@@ -544,7 +544,7 @@ The following commands are supported by the robot:
 |     On | Turns Testmode on. Mutually exclusive with Off. <br>  |
 
 
-###Upload
+### Upload
 
 **Description:** Uploads new program to the robot.
 

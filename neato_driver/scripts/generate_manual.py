@@ -40,7 +40,7 @@ def readCommandsFromNeato():
     commands = robot.getAllCommands()
     for c in commands:
         com = robot.getCommandDescription(c)
-        doc += "###" + com.command + "\n\n"
+        doc += "### " + com.command + "\n\n"
         doc += "**Description:** " + com.description  + "\n\n"
         if len(com.arguments) > 0:
             doc += "**Options:** \n\n| Flag | Description |\n|------|-------------|\n"
@@ -51,7 +51,7 @@ def readCommandsFromNeato():
     return doc
 
 if __name__ == "__main__":    
-    documentation = "#Documentation of Neato's serial port interface\n"
+    documentation = "# Manual for Neato's serial port interface\n"
     documentation += commonDocumentation()
     #documentation += readCommandsFromNeato()
     format = rospy.get_param('~format', "md")
