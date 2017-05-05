@@ -1,0 +1,15 @@
+# color types
+string BLUE="blue"
+string PURPLE="purple"
+string RED="red"
+
+# status types
+string OFF="off"
+string SOLID="solid"
+string DIM_SOLID="dimsolid"
+string PULSE="pulse"
+string BLINK="blink"
+string BLINK_FAST="blinkfast"
+
+string color
+string status

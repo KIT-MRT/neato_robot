@@ -70,6 +70,11 @@ class NeatoNode:
         self.drop_rightPub = rospy.Publisher('drop_right', Range, queue_size=10)
         self.magneticPub = rospy.Publisher('magnetic', Sensor, queue_size=10)
         self.odomBroadcaster = TransformBroadcaster()
+
+        rospy.Service('info_led', Led, setInfoLed, self)
+        rospy.Service('play_sound', UInt8, playSound, self)
+        rospy.Service('set_lds', Bool, setLDS, self)
+
         self.cmd_vel = [0, 0]
         self.old_vel = self.cmd_vel
 
@@ -102,7 +107,7 @@ class NeatoNode:
         range_sensor.max_range = 0.255
         acceleration = Vector3Stamped()
         self.robot.setBacklight(1)
-        self.robot.setLED("Info", "Blue", "Solid")
+        self.robot.setLED("info", "blue", "solid")
         # main loop of driver
         r = rospy.Rate(5)
         try: 
@@ -111,11 +116,11 @@ class NeatoNode:
                 charge = self.robot.getCharger()
                 if charge < 10:
                     #print "battery low " + str(self.robot.getCharger()) + "%"
-                    self.robot.setLED("Battery", "Red", "Pulse")
+                    self.robot.setLED("battery", "red", "pulse")
                 elif charge < 25:
-                    self.robot.setLED("Battery", "Yellow", "Solid")
+                    self.robot.setLED("battery", "yellow", "solid")
                 else:
-                    self.robot.setLED("Battery", "Green", "Solid")
+                    self.robot.setLED("battery", "green", "solid")
 
 
                 # get motor encoder values
@@ -255,6 +260,18 @@ class NeatoNode:
                     print "safety constraint violated by digital sensor"
                     return True
         return False
+
+    def setInfoLed(self, data):
+        self.robot.setLed("info", data.status, data.color);
+
+    def playSound(self, data):
+        self.robot.playSound(data.data);
+
+    def setLDS(self, data):
+        if data.data:
+            self.robot.setLDS("on");
+        else:
+            self.robot.setLDS("off");
 
 if __name__ == "__main__":    
     robot = NeatoNode()

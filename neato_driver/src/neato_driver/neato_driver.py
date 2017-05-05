@@ -48,7 +48,7 @@ response string: http://www.neatorobotics.com.au/programmer-s-manual
 
 class Botvac():
 
-    def __init__(self, port="/dev/ttyUSB0"):
+    def __init__(self, port="/dev/ttyUSB0", lds = False):
         self.port = serial.Serial(port,921600)
         # Storage for motor and sensor information
         self.state = {"FuelPercent": 0, "LeftWheel_PositionInMM": 0, "RightWheel_PositionInMM": 0, "LSIDEBIT": 0,
@@ -65,7 +65,10 @@ class Botvac():
         self.port.flushInput()
         self.port.write("\n")
         self.setTestMode("on")
-        self.setLDS("on")
+        if lds:
+            self.setLDS("on")
+        else:
+            self.setLDS("off")
 
     def exit(self):
         self.port.flushInput()
@@ -215,31 +218,34 @@ class Botvac():
 
     def setLED(self, led, color, status):
         """ for Botvac D5 Connected
-        led "Battery" supports Green, Yellow an Red led "Info" supports Blue, Purple an Red
-        status supports Sold, Blink, Pulse, Off and DimSolid or BlinkFast """
+        led "battery" supports green, yellow an red led "info" supports blue, purple an red
+        status supports solid, blink, pulse, off and dimSolid or blinkFast """
 
-        if led == "Battery":
-            if status == "Off":
+        if led == "battery":
+            if status == "off":
                 self.port.write("setled Led12Off\n")
             else:
-                if color == "Green":
+                if color == "green":
                     self.port.write("setled Led1" + status + "\n")
-                if color == "Yellow":
+                if color == "yellow":
                     self.port.write("setled Led12" + status + "\n")
-                if color == "Red":
+                if color == "red":
                     self.port.write("setled Led2" + status + "\n")
-        elif led == "Info":
-            if status == "Off":
+        elif led == "info":
+            if status == "off":
                 self.port.write("setled Led34Off\n")
             else:
-                if color == "Blue":
+                if color == "blue":
                     self.port.write("setled Led3" + status + "\n")
-                if color == "Purple":
+                if color == "purple":
                     self.port.write("setled Led34" + status + "\n")
-                if color == "Red":
+                if color == "red":
                     self.port.write("setled Led4" + status + "\n")
         #else:
             # error, led not supported
+
+    def playSound(self, soundid):
+        self.port.write("playsound soundid " + soundid + " \n")
 
 
     def getAllCommands(self):
