@@ -37,9 +37,10 @@ import sys
 import traceback
 from math import sin,cos
 
-from sensor_msgs.msg import LaserScan
-from sensor_msgs.msg import Range
+from sensor_msgs.msg import LaserScan, Range
+from std_srvs.srv import SetBool, SetBoolResponse
 from neato_node.msg import Button, Sensor
+from neato_node.srv import SetLed, SetLedResponse, PlaySound, PlaySoundResponse
 from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Vector3Stamped
@@ -71,9 +72,9 @@ class NeatoNode:
         self.magneticPub = rospy.Publisher('magnetic', Sensor, queue_size=10)
         self.odomBroadcaster = TransformBroadcaster()
 
-        rospy.Service('info_led', Led, setInfoLed, self)
-        rospy.Service('play_sound', UInt8, playSound, self)
-        rospy.Service('set_lds', Bool, setLDS, self)
+        rospy.Service('set_info_led', SetLed, self.setInfoLed)
+        rospy.Service('play_sound', PlaySound, self.playSound)
+        rospy.Service('set_lds', SetBool, self.setLDS)
 
         self.cmd_vel = [0, 0]
         self.old_vel = self.cmd_vel
@@ -262,16 +263,19 @@ class NeatoNode:
         return False
 
     def setInfoLed(self, data):
-        self.robot.setLed("info", data.status, data.color);
+        self.robot.setLED("info", data.color, data.status)
+        return SetLedResponse()
 
     def playSound(self, data):
-        self.robot.playSound(data.data);
+        self.robot.playSound(data.soundid)
+        return PlaySoundResponse()
 
     def setLDS(self, data):
         if data.data:
-            self.robot.setLDS("on");
+            self.robot.setLDS("on")
         else:
-            self.robot.setLDS("off");
+            self.robot.setLDS("off")
+        return SetBoolResponse(True, "")
 
 if __name__ == "__main__":    
     robot = NeatoNode()

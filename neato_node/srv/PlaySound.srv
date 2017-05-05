@@ -1,0 +1,5 @@
+# soundid are supportet between 0 and 21, but not all are working for example with Botvac D5 Connected
+uint8 soundid
+
+---
+

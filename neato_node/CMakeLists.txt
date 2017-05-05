@@ -8,6 +8,12 @@ add_message_files(
    Button.msg
    Sensor.msg
  )
+
+add_service_files(
+   FILES
+	 SetLed.srv
+	 PlaySound.srv
+ )
  
 generate_messages(
   DEPENDENCIES

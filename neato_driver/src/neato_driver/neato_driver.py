@@ -245,7 +245,7 @@ class Botvac():
             # error, led not supported
 
     def playSound(self, soundid):
-        self.port.write("playsound soundid " + soundid + " \n")
+        self.port.write("playsound soundid " + str(soundid) + " \n")
 
 
     def getAllCommands(self):
