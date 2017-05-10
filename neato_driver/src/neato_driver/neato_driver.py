@@ -61,10 +61,11 @@ class Botvac():
         self.base_width = 248    # millimeters
         self.max_speed = 100     # millimeters/second
         self.crtl_z = chr(26)
-        # turn things on
+        # turn things on or off
         self.port.flushInput()
         self.port.write("\n")
         self.setTestMode("on")
+        self.setWiFi("off")
         if lds:
             self.setLDS("on")
         else:
@@ -83,6 +84,11 @@ class Botvac():
 
     def setLDS(self, value):
         self.port.write("setldsrotation " + value + "\n")
+        self.readResponseString()
+
+    def setWiFi(self, value):
+        """ Turn WiFi on/off. """
+        self.port.write("setUserSettings Wifi " + value + "\n")
         self.readResponseString()
 
     def requestScan(self):
