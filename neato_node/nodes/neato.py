@@ -56,9 +56,10 @@ class NeatoNode:
         rospy.init_node('neato')
 
         self.port = rospy.get_param('~port', "/dev/ttyUSB0")
+        self.lds = rospy.get_param('~lds', True)
         rospy.loginfo("Using port: %s" % self.port)
 
-        self.robot = Botvac(self.port)
+        self.robot = Botvac(self.port, self.lds)
 
         rospy.Subscriber("cmd_vel", Twist, self.cmdVelCb)
         self.scanPub = rospy.Publisher('base_scan', LaserScan, queue_size=10)
