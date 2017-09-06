@@ -109,7 +109,7 @@ class Botvac():
     def readResponseString(self):
         """ Returns the entire response from neato in one string. """
         response = str()
-        self.port.timeout = 0.001
+        self.port.timeout = 0.03
         while True:
             try:
                 buf = self.port.read(1024)
