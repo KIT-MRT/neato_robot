@@ -73,21 +73,28 @@ class Botvac():
 
     def exit(self):
         self.port.flushInput()
+        self.port.flushOutput()
         self.port.write("\n")
         self.setLDS("off")
         self.setTestMode("off")
 
     def setTestMode(self, value):
         """ Turn test mode on/off. """
+        self.port.flushInput()
+        self.port.flushOutput()
         self.port.write("testmode " + value + "\n")
         self.readResponseString()
 
     def setLDS(self, value):
+        self.port.flushInput()
+        self.port.flushOutput()
         self.port.write("setldsrotation " + value + "\n")
         self.readResponseString()
 
     def setWiFi(self, value):
         """ Turn WiFi on/off. """
+        self.port.flushInput()
+        self.port.flushOutput()
         self.port.write("setUserSettings Wifi " + value + "\n")
         self.readResponseString()
 
@@ -162,12 +169,15 @@ class Botvac():
         """ Update values for motors in the self.state dictionary.
             Returns current left, right encoder values. """
         self.port.flushInput()
+        self.port.flushOutput()
         self.port.write("getmotors\n")
         self.readResponseAndUpdateState()
         return [self.state["LeftWheel_PositionInMM"], self.state["RightWheel_PositionInMM"]]
 
     def getAnalogSensors(self):
         """ Update values for analog sensors in the self.state dictionary. """
+        self.port.flushInput()
+        self.port.flushOutput()
         self.port.write("getanalogsensors\n")
         response = self.readResponseString()
         for line in response.splitlines():
@@ -181,6 +191,8 @@ class Botvac():
 
     def getDigitalSensors(self):
         """ Update values for digital sensors in the self.state dictionary. """
+        self.port.flushInput()
+        self.port.flushOutput()
         self.port.write("getdigitalsensors\n")
         self.readResponseAndUpdateState()
         return [self.state["LSIDEBIT"], self.state["RSIDEBIT"], self.state["LFRONTBIT"], self.state["RFRONTBIT"],
@@ -188,12 +200,16 @@ class Botvac():
 
     def getButtons(self):
         """ Update values for digital buttons in the self.state dictionary. """
+        self.port.flushInput()
+        self.port.flushOutput()
         self.port.write("getbuttons\n")
         self.readResponseAndUpdateState()
         return [self.state["BTN_SOFT_KEY"], self.state["BTN_SCROLL_UP"], self.state["BTN_START"], self.state["BTN_BACK"], self.state["BTN_SCROLL_DOWN"]]
     
     def getCharger(self):
         """ Update values for charger/battery related info in self.state dictionary. """
+        self.port.flushInput()
+        self.port.flushOutput()
         self.port.write("getcharger\n")
         self.readResponseAndUpdateState()
         return self.state["FuelPercent"]
@@ -251,6 +267,8 @@ class Botvac():
             # error, led not supported
 
     def playSound(self, soundid):
+        self.port.flushInput()
+        self.port.flushOutput()
         self.port.write("playsound soundid " + str(soundid) + " \n")
 
 
