@@ -111,19 +111,18 @@ class NeatoNode:
         self.robot.setLED("info", "blue", "solid")
         # main loop of driver
         r = rospy.Rate(5)
+        loop_counter = 0
         try: 
             while not rospy.is_shutdown():
-                self.set_battery_status()
 
-                # read and publish sensor values
-                self.publish_scan(scan)
-                old_encoders = self.encoders
-                self.publish_odom(odom)
-                if old_encoders == self.encoders:
-                    rospy.logwarn("same odometry messages")
+                if loop_counter == 4:
+                    self.set_battery_status()
+                    self.publish_scan(scan)
+                    loop_counter = 0
                 else:
-                    rospy.logerr("new odometry messages")
+                    loop_counter += 1
 
+                self.publish_odom(odom)
                 self.publish_buttons(button)
                 drop_left, drop_right, ml, mr = self.publish_analog(acceleration, range_sensor, magnetic)
                 lw, rw, lsb, rsb, lfb, rfb = self.publish_digital(sensor)
