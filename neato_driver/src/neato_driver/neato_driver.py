@@ -162,7 +162,7 @@ class Botvac():
         response = self.readResponseString()
         for line in response.splitlines():
             vals = line.split(",")
-            if len(vals) >= 2 and vals[0].replace('_', '').isalpha() and vals[1].isdigit():
+            if len(vals) >= 2 and vals[0].replace('_', '').isalpha() and vals[1].replace('-','').isdigit():
                 self.state[vals[0]] = int(vals[1])
 
     def getMotors(self):
