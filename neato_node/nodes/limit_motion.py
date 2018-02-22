@@ -20,23 +20,24 @@ def command_callback(data):
         data (LaserScan)
     """
     global odometry_called
-    if data.twist.linear.x == 0 \
-            and data.twist.linear.y == 0 \
-            and data.twist.linear.z == 0 \
-            and data.twist.angular.x == 0 \
-            and data.twist.angular.y == 0 \
-            and data.twist.angular.z == 0:
+    rospy.loginfo("command callback")
+    if data.linear.x == 0 \
+            and data.linear.y == 0 \
+            and data.linear.z == 0 \
+            and data.angular.x == 0 \
+            and data.angular.y == 0 \
+            and data.angular.z == 0:
         command_publisher.publish(data) 
         odometry_called = False
         return
-    elif data.twist.angular.x == 0 \
-            and data.twist.angular.y == 0 \
-            and data.twist.angular.z == 0:
+    elif data.angular.x == 0 \
+            and data.angular.y == 0 \
+            and data.angular.z == 0:
         pass
     else:
-        data.twist.linear.x = 0
-        data.twist.linear.y = 0
-        data.twist.linear.z = 0
+        data.linear.x = 0
+        data.linear.y = 0
+        data.linear.z = 0
     if odometry_called:
         command_publisher.publish(data) 
         odometry_called = False
@@ -54,7 +55,7 @@ def odometry_callback(data):
 if __name__ == '__main__':
     rospy.init_node('limit_motion')
 
-    rospy.Subscriber("vel_cmd", Twist, command_callback, queue_size=1)
+    rospy.Subscriber("cmd_vel", Twist, command_callback, queue_size=1)
     rospy.Subscriber("odom", Odometry, odometry_callback, queue_size=1)
     command_publisher = rospy.Publisher("limited_vel_cmd", Twist, queue_size=1)
 
