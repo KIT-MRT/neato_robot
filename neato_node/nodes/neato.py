@@ -263,6 +263,7 @@ class NeatoNode:
             self.robot.setLED("battery", "yellow", "solid")
         else:
             self.robot.setLED("battery", "green", "solid")
+        rospy.loginfo_throttle(60, "Current battery status: " + str(charge) + "%")
 
     def violate_safety_constraints(left_drop, right_drop, *digital_sensors ):
         if left_drop > 30 or right_drop > 30:
