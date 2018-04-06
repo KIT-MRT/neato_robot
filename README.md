@@ -20,3 +20,4 @@ You can check this out into your catkin workspace as follows:
  * and contains elementary safety features: stopping at walls, stairs and Neato's magnetic strips.
  * LDS, Sounds, and Leds can be set via service call
  * This ROS node works with Kinetic. 
+ * Add config to control the Neato with a joystick.
