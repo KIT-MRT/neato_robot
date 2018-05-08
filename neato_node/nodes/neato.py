@@ -79,7 +79,7 @@ class NeatoNode:
 
         self.cmd_vel = 0
         self.cmd_dist = [0, 0]
-        self.old_dist = self.cmd_dist
+        self.update_movement = False
         self.encoders = [0, 0]
 
     def spin(self):
@@ -132,10 +132,10 @@ class NeatoNode:
                 if self.violate_safety_constraints(drop_left, drop_right, ml, mr, lw, rw, lsb, rsb, lfb, rfb):
                     self.robot.setMotors(0, 0, 0)
                     self.cmd_vel = 0
-                elif self.cmd_dist != self.old_dist:
+                elif self.update_movement:
                     self.robot.setMotors(self.cmd_dist[0], self.cmd_dist[1], self.cmd_vel)
-                    # reset command distance and speed 
-                    self.old_dist = self.cmd_dist
+                    # reset update flag 
+                    self.update_movement = False
               # wait, then do it again
                 r.sleep()
 
@@ -173,6 +173,7 @@ class NeatoNode:
             ros.logwarn("You have set the speed to more than the maximum speed of the neato. For safety reasons it is set to %d", self.robot.max_speed)
         self.cmd_vel = k
         self.cmd_dist = [req.x_dist, req.y_dist]
+        self.update_movement = True
 
     def publish_odom(self, odom):
         # get motor encoder values
