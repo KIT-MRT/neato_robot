@@ -170,7 +170,7 @@ class NeatoNode:
         # sending commands higher than max speed will fail
         if k > self.robot.max_speed:
             k = self.robot.max_speed
-            ros.logwarn("You have set the speed to more than the maximum speed of the neato. For safety reasons it is set to %d", self.robot.max_speed)
+            rospy.logwarn("You have set the speed to more than the maximum speed of the neato. For safety reasons it is set to %d", self.robot.max_speed)
         self.cmd_vel = k
         self.cmd_dist = [req.x_dist*1000, req.y_dist*1000]
         self.update_movement = True
