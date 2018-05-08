@@ -132,7 +132,7 @@ class NeatoNode:
                 if self.violate_safety_constraints(drop_left, drop_right, ml, mr, lw, rw, lsb, rsb, lfb, rfb):
                     self.robot.setMotors(0, 0, 0);
                     self.cmd_vel = [0, 0]
-                elif self.cmd_vel != self.old_vel:
+                elif self.cmd_dist != self.old_dist:
                     self.robot.setMotors(self.cmd_dist[0], self.cmd_dist[1], self.cmd_vel)
                     # reset command distance and speed 
                     self.robot.cmd_dist = [0,0]
