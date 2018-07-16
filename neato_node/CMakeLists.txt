@@ -8,6 +8,7 @@ add_message_files(
    Button.msg
    Sensor.msg
    Movement.msg
+   Encoder.msg
  )
 
 add_service_files(
