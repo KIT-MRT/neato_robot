@@ -39,7 +39,7 @@ from math import sin,cos
 
 from sensor_msgs.msg import LaserScan, Range
 from std_srvs.srv import SetBool, SetBoolResponse
-from neato_node.msg import Button, Sensor
+from neato_node.msg import Button, Sensor, Movement
 from neato_node.srv import SetLed, SetLedResponse, PlaySound, PlaySoundResponse
 from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import Twist
@@ -61,7 +61,7 @@ class NeatoNode:
 
         self.robot = Botvac(self.port, self.lds)
 
-        rospy.Subscriber("cmd_vel", Twist, self.cmdVelCb)
+        rospy.Subscriber("cmd_dist", Movement, self.cmdMovementCb)
         self.scanPub = rospy.Publisher('base_scan', LaserScan, queue_size=1)
         self.odomPub = rospy.Publisher('odom', Odometry, queue_size=1)
         self.buttonPub = rospy.Publisher('button', Button, queue_size=1)
@@ -77,8 +77,9 @@ class NeatoNode:
         rospy.Service('play_sound', PlaySound, self.playSound)
         rospy.Service('set_lds', SetBool, self.setLDS)
 
-        self.cmd_vel = [0, 0]
-        self.old_vel = self.cmd_vel
+        self.cmd_vel = 0
+        self.cmd_dist = [0, 0]
+        self.update_movement = False
         self.encoders = [0, 0]
 
     def spin(self):
@@ -129,11 +130,12 @@ class NeatoNode:
 
                 # send updated movement commands
                 if self.violate_safety_constraints(drop_left, drop_right, ml, mr, lw, rw, lsb, rsb, lfb, rfb):
-                    self.robot.setMotors(0, 0, 0);
-                    self.cmd_vel = [0, 0]
-                elif self.cmd_vel != self.old_vel:
-                    self.robot.setMotors(self.cmd_vel[0], self.cmd_vel[1], max(abs(self.cmd_vel[0]), abs(self.cmd_vel[1])))
-
+                    self.robot.setMotors(0, 0, 0)
+                    self.cmd_vel = 0
+                elif self.update_movement:
+                    self.robot.setMotors(self.cmd_dist[0], self.cmd_dist[1], self.cmd_vel)
+                    # reset update flag 
+                    self.update_movement = False
               # wait, then do it again
                 r.sleep()
 
@@ -162,6 +164,16 @@ class NeatoNode:
         if k > self.robot.max_speed:
             x = x*self.robot.max_speed/k; th = th*self.robot.max_speed/k
         self.cmd_vel = [int(x-th), int(x+th)]
+
+    def  cmdMovementCb(self,req):
+        k = req.vel
+        # sending commands higher than max speed will fail
+        if k > self.robot.max_speed:
+            k = self.robot.max_speed
+            rospy.logwarn("You have set the speed to more than the maximum speed of the neato. For safety reasons it is set to %d", self.robot.max_speed)
+        self.cmd_vel = k
+        self.cmd_dist = [req.x_dist*1000, req.y_dist*1000]
+        self.update_movement = True
 
     def publish_odom(self, odom):
         # get motor encoder values
