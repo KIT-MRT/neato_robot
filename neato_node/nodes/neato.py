@@ -224,21 +224,12 @@ class NeatoNode:
         d_left = (left - self.encoders[0])/1000.0
         d_right = (right - self.encoders[1])/1000.0
         self.encoders = [left, right]
+        # prepare the msg
+        encoder.header.stamp = rospy.Time.now()
         encoder.left = d_left
         encoder.right = d_right
         self.encoderPub.publish(encoder)
 
-
-
-
-        # prepare odometry
-        odom.header.stamp = rospy.Time.now()
-
-
-        # publish everything
-        self.odomPub.publish(odom)
-        self.odomBroadcaster.sendTransform((self.x, self.y, 0), (quaternion.x, quaternion.y, quaternion.z,
-                                                                         quaternion.w), rospy.Time.now(), "base_link", "odom")
     def publish_scan(self, scan):
         scan.header.stamp = rospy.Time.now()
         scan.ranges = self.robot.getScanRanges()
