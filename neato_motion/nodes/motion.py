@@ -33,8 +33,11 @@ class Motion:
 
     def turn(self,angle):
         self.driven_angle = 0.00
+        self.movement.l_dist = -self.distance_increment
+        self.movement.r_dist = self.distance_increment
+        self.movement.vel = 50
         while(self.driven_angle < angle):
-            rospy.publish
+            self.cmdDistPub.publish(self.movement)
 
     def curve(self,radius):
         circle = Circle(radius)
