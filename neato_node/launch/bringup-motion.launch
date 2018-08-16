@@ -1,0 +1,15 @@
+<launch>
+
+	<include file="$(find neato_node)/launch/bringup.launch" />
+  <include file="$(find neato_2dnav)/launch/move_base.launch" />
+
+  <node pkg="neato_motion" type="motion.py" name="StraightLine" />
+  
+  <param name="robot_description" command="$(find xacro)/xacro.py $(find neato_node)/urdf/neato.urdf.xacro" />
+  <param name="use_gui" value="False"/>
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+  
+  <node name="rviz" type="rviz" pkg="rviz" args="-d $(find neato_node)/neato.rviz" />
+
+</launch>
+
