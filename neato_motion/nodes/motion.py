@@ -1,19 +1,24 @@
+#!/usr/bin/env python
 import rospy
 import math
-from ..shapes.shapes import Rectangle, Circle
+import tf
+
 from geometry_msgs.msg import Quaternion
 from neato_node.msg import Movement
 from nav_msgs.msg import Odometry
 
 class Motion:
     def __init__(self):
-        self.driven_distance = 0
+        self.abs_driven_distance = 0
+        self.rel_driven_distance = 0
         self.distance_increment = 0.01
         self.old_pos_x = 0.00
-        self.driven_angle = 0.00
+        self.abs_driven_angle = 0.00
+        self.rel_driven_angle = 0.00
+
+
         self.old_yaw = 0.00
         rospy.init_node('neato_motion')
-
 
         self.cmdDistPub = rospy.Publisher('cmd_dist', Movement, queue_size=1)
         self.movement = Movement()
@@ -21,22 +26,22 @@ class Motion:
         rospy.Subscriber("odom",Odometry,self.odomCb)
 
 
-    def straight(self,distance):
-        self.driven_distance = 0.00
+    def straight(self,distance): 
+        self.rel_driven_distance = 0
         self.movement.l_dist = self.distance_increment
         self.movement.r_dist = self.distance_increment
         self.movement.vel = 50
-        while(self.driven_distance < distance):
+        while(self.rel_driven_distance < distance):
             self.cmdDistPub.publish(self.movement)
-            
+            rospy.logwarn("current position is %f" % self.rel_driven_distance)
 
 
     def turn(self,angle):
-        self.driven_angle = 0.00
+        self.rel_driven_angle = 0.00
         self.movement.l_dist = -self.distance_increment
         self.movement.r_dist = self.distance_increment
         self.movement.vel = 50
-        while(self.driven_angle < angle):
+        while(self.rel_driven_angle < angle):
             self.cmdDistPub.publish(self.movement)
 
     def curve(self,radius):
@@ -47,23 +52,28 @@ class Motion:
     
     def drive_rectangle(self,length):
         for i in range(3):
-            self.turn(math.pi/2)
             self.straight(length)
+            self.turn(math.pi/2)
 
     def odomCb(self,req):
         # get x position from odom msg
-        self.driven_distance += (req.pose.pose.position.x - self.old_pos_x)
+        rel_movement = (req.pose.pose.position.x - self.old_pos_x)
+        self.abs_driven_distance += rel_movement 
+        self.rel_driven_distance += rel_movement 
         self.old_pos_x = req.pose.pose.position.x
 
-        # get yaw angle from odom msg
-        quaternion = Quaternion()
-        req.pose.pose.orientation = quaternion
-         (_, _, yaw) = tf.transformations.euler_from_quaternion(quaternion)
-        self.driven_angle += (yaw - self.old_yaw)
+        quaternion = (req.pose.pose.orientation.x,
+                      req.pose.pose.orientation.y,
+                      req.pose.pose.orientation.z,
+                      req.pose.pose.orientation.w)# get yaw angle from odom msg
+        (_, _, yaw) = tf.transformations.euler_from_quaternion(quaternion)
+        rel_turn = (yaw - self.old_yaw)
+        self.abs_driven_angle += rel_turn
+        self.rel_driven_angle += rel_turn 
         self.old_yaw = yaw
 
 if __name__ == "__main__":    
     neato_motion = Motion()
-    neato_motion.straight(1)
+    neato_motion.drive_rectangle(0.3)
     
         
