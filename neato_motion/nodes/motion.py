@@ -10,10 +10,11 @@ from nav_msgs.msg import Odometry
 
 class Motion:
     def __init__(self):
-        self.abs_driven_distance = 0
-        self.rel_driven_distance = 0
+        self.abs_driven_distance = 0.00
+        self.rel_driven_distance = 0.00
         self.distance_increment = 0.01
         self.old_pos_x = 0.00
+        self.old_pos_y = 0.00
         self.abs_driven_angle = 0.00
         self.rel_driven_angle = 0.00
 
@@ -24,7 +25,12 @@ class Motion:
         self.cmdDistPub = rospy.Publisher('cmd_dist', Movement, queue_size=1)
         self.movement = Movement()
 
-        rospy.Subscriber("odom",Odometry,self.odomCb)
+        self.stop = Movement()
+        self.stop.l_dist = 0.0
+        self.stop.r_dist = 0.0
+        self.stop.vel = 0
+
+        rospy.Subscriber("odom", Odometry, self.odomCb)
 
 
     def straight(self,distance): 
