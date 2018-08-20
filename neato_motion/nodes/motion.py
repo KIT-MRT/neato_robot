@@ -2,6 +2,7 @@
 import rospy
 import math
 import tf
+import time
 
 from geometry_msgs.msg import Quaternion
 from neato_node.msg import Movement
@@ -27,22 +28,26 @@ class Motion:
 
 
     def straight(self,distance): 
-        self.rel_driven_distance = 0
-        self.movement.l_dist = self.distance_increment
-        self.movement.r_dist = self.distance_increment
+        time.sleep(10)
+        self.rel_driven_distance = 0.00
+        self.movement.l_dist = 1.5 * distance 
+        self.movement.r_dist = 1.5 * distance
         self.movement.vel = 50
+        self.cmdDistPub.publish(self.movement)
         while(self.rel_driven_distance < distance):
-            self.cmdDistPub.publish(self.movement)
-            rospy.logwarn("current position is %f" % self.rel_driven_distance)
+            pass
+        rospy.logwarn("i will now stop")
+        self.cmdDistPub.publish(self.stop)
 
 
     def turn(self,angle):
         self.rel_driven_angle = 0.00
-        self.movement.l_dist = -self.distance_increment
-        self.movement.r_dist = self.distance_increment
-        self.movement.vel = 50
+        self.movement.l_dist = 1.5*angle 
+        self.movement.r_dist = 1.5*angle 
+        self.cmdDistPub.publish(self.movement)
         while(self.rel_driven_angle < angle):
-            self.cmdDistPub.publish(self.movement)
+            pass
+        self.cmdDistPub.publish(self.stop)
 
     def curve(self,radius):
         circle = Circle(radius)
@@ -56,11 +61,13 @@ class Motion:
             self.turn(math.pi/2)
 
     def odomCb(self,req):
-        # get x position from odom msg
-        rel_movement = (req.pose.pose.position.x - self.old_pos_x)
-        self.abs_driven_distance += rel_movement 
-        self.rel_driven_distance += rel_movement 
+        x = req.pose.pose.position.x - self.old_pos_x 
+        y = req.pose.pose.position.y - self.old_pos_y
+        
+        self.rel_driven_distance = ((x)**2+(y)**2)**0.5
+
         self.old_pos_x = req.pose.pose.position.x
+        self.old_pos_y = req.pose.pose.position.y
 
         quaternion = (req.pose.pose.orientation.x,
                       req.pose.pose.orientation.y,
