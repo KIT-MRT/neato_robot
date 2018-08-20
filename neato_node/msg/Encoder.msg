@@ -1,3 +1,3 @@
 Header header
-uint8 left
-uint8 right
+float32 left
+float32 right
