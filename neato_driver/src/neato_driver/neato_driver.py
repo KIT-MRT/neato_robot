@@ -143,18 +143,14 @@ class Botvac():
         """ Set motors, distance left & right + speed """
         #This is a work-around for a bug in the Neato API. The bug is that the
         #robot won't stop instantly if a 0-velocity command is sent - the robot
-        #could continue moving for up to a second. To work around this bug, the
-        #first time a 0-velocity is sent in, a velocity of 1,1,1 is sent. Then, 
-        #the zero is sent. This effectively causes the robot to stop instantly.
-        if (int(l) == 0 and int(r) == 0 and int(s) == 0):
-            if (not self.stop_state):
-                self.stop_state = True
-                l = 1
-                r = 1
-                s = 1
+        #could continue moving for up to a second. To work around this bug, the both motors
+        #will be disabled and enabled directly after.
+        if (int(s) == 0):
+            self.port.write("setmotor lwheeldisable rwheeldisable"+"\n")
+            self.port.write("setmotor lwheelenable rwheelenable"+"\n")
+
         else:
-            self.stop_state = False
-        self.port.write("setmotor lwheeldist "+str(int(l))+" rwheeldist "+str(int(r))+" speed "+str(int(s))+"\n")
+            self.port.write("setmotor lwheeldist "+str(int(l))+" rwheeldist "+str(int(r))+" speed "+str(int(s))+"\n")
 
     def readResponseAndUpdateState(self):
         """ Read neato's response and update self.state dictionary.
