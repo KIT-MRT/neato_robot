@@ -72,7 +72,7 @@ class Motion:
         x = req.pose.pose.position.x - self.old_pos_x 
         y = req.pose.pose.position.y - self.old_pos_y
         
-        self.rel_driven_distance = ((x)**2+(y)**2)**0.5
+        self.rel_driven_distance += ((x)**2+(y)**2)**0.5
 
         self.old_pos_x = req.pose.pose.position.x
         self.old_pos_y = req.pose.pose.position.y
@@ -83,8 +83,8 @@ class Motion:
                       req.pose.pose.orientation.w)# get yaw angle from odom msg
         (_, _, yaw) = tf.transformations.euler_from_quaternion(quaternion)
         rel_turn = (yaw - self.old_yaw)
-        self.abs_driven_angle += rel_turn
-        self.rel_driven_angle += rel_turn 
+        self.abs_driven_angle += abs(rel_turn)
+        self.rel_driven_angle += abs(rel_turn) 
         self.old_yaw = yaw
 
 if __name__ == "__main__":    
