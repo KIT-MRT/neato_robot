@@ -34,11 +34,11 @@ class Motion:
 
 
     def straight(self,distance): 
-        time.sleep(10)
+        time.sleep(1)
         self.rel_driven_distance = 0.00
-        self.movement.l_dist = 1.5 * distance 
-        self.movement.r_dist = 1.5 * distance
-        self.movement.vel = 50
+        self.movement.l_dist = 2.5 * distance 
+        self.movement.r_dist = 2.5 * distance
+        self.movement.vel = 80
         self.cmdDistPub.publish(self.movement)
         while(self.rel_driven_distance < distance):
             pass
@@ -48,8 +48,10 @@ class Motion:
 
     def turn(self,angle):
         self.rel_driven_angle = 0.00
-        self.movement.l_dist = 1.5*angle 
-        self.movement.r_dist = 1.5*angle 
+        self.movement.vel = 80
+        self.movement.l_dist = -1.5
+        self.movement.r_dist = 1.5 
+        time.sleep(1)
         self.cmdDistPub.publish(self.movement)
         while(self.rel_driven_angle < angle):
             pass
@@ -62,7 +64,7 @@ class Motion:
             rospy.publish(motorcommand(lwheeldist,rwheeldist))
     
     def drive_rectangle(self,length):
-        for i in range(3):
+        for i in range(4):
             self.straight(length)
             self.turn(math.pi/2)
 
