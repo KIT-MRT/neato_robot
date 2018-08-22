@@ -119,12 +119,12 @@ class NeatoNode:
                 if loop_counter == 4:
                     self.set_battery_status()
                     self.publish_scan(scan)
+                    self.publish_buttons(button)
                     loop_counter = 0
                 else:
                     loop_counter += 1
 
                 self.publish_odom(odom)
-                self.publish_buttons(button)
                 drop_left, drop_right, ml, mr = self.publish_analog(acceleration, range_sensor, magnetic)
                 lw, rw, lsb, rsb, lfb, rfb = self.publish_digital(sensor)
 
@@ -172,7 +172,7 @@ class NeatoNode:
             k = self.robot.max_speed
             rospy.logwarn("You have set the speed to more than the maximum speed of the neato. For safety reasons it is set to %d", self.robot.max_speed)
         self.cmd_vel = k
-        self.cmd_dist = [req.l_dist*1000, req.r_dist*1000]
+        self.cmd_dist = [req.x_dist*1000, req.y_dist*1000]
         self.update_movement = True
 
     def publish_odom(self, odom):
