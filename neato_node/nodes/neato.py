@@ -122,6 +122,7 @@ class NeatoNode:
                 if loop_counter == 4:
                     self.set_battery_status()
                     self.publish_scan(scan)
+                    self.publish_buttons(button)
                     loop_counter = 0
                 else:
                     loop_counter += 1
