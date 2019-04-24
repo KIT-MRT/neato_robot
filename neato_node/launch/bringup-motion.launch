@@ -1,8 +1,19 @@
 <launch>
+  <!-- Here you can decide which geometric motion the neato should drive. Possible values are:
+         "straight"
+         "rectangle"
+         "turn"
+  -->
+    <arg name="motion" default="straight"/> 
 
+  <!--Bringup the neato driver and the driver of the VMU931 IMU-->
 	<include file="$(find neato_node)/launch/bringup.launch" />
+    <include file="$(find vmu931_imu)/launch/vmu931_imu.launch" />
 
-  <node pkg="neato_motion" type="motion.py" name="StraightLine" />
+    <node pkg="neato_motion" type="motion.py" name="GeometricMotion" >
+        <param name="motion" value="$(arg motion)"/>
+    </node>
+            
   
 
 </launch>

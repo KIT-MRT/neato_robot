@@ -34,12 +34,16 @@ class Motion:
 
 
     def straight(self,distance): 
+        # this function tries to drive a straight line
+        # the distance given is multiplied by 2.5, but the neato should stop at distance
         time.sleep(1)
         self.rel_driven_distance = 0.00
         self.movement.l_dist = 2.5 * distance 
         self.movement.r_dist = 2.5 * distance
         self.movement.vel = 80
         self.cmdDistPub.publish(self.movement)
+        # this loop asks if the driven distance measured by the state estimation is larger than the distance 
+        # you told the neato to drive 
         while(self.rel_driven_distance < distance):
             pass
         rospy.logwarn("i will now stop")
@@ -47,21 +51,17 @@ class Motion:
 
 
     def turn(self,angle):
+        # same as straight() but with an angle
         self.rel_driven_angle = 0.00
         self.movement.vel = 80
-        self.movement.l_dist = -1.5
-        self.movement.r_dist = 1.5 
+        self.movement.l_dist = -20
+        self.movement.r_dist = 20
         time.sleep(1)
         self.cmdDistPub.publish(self.movement)
         while(self.rel_driven_angle < angle):
             pass
         self.cmdDistPub.publish(self.stop)
 
-    def curve(self,radius):
-        circle = Circle(radius)
-        lwheeldist,rwheeldist,arc = circle.get_dist()
-        while(drivenarc <  arc):
-            rospy.publish(motorcommand(lwheeldist,rwheeldist))
     
     def drive_rectangle(self,length):
         for i in range(4):
@@ -69,9 +69,12 @@ class Motion:
             self.turn(math.pi/2)
 
     def odomCb(self,req):
+        # this function checks the state estimation for the position of the neato
+        # it uses the updates to calculate the driven distance 
         x = req.pose.pose.position.x - self.old_pos_x 
         y = req.pose.pose.position.y - self.old_pos_y
         
+        # simply uses the euclidean distance to determine the driven distance
         self.rel_driven_distance += ((x)**2+(y)**2)**0.5
 
         self.old_pos_x = req.pose.pose.position.x
@@ -89,6 +92,13 @@ class Motion:
 
 if __name__ == "__main__":    
     neato_motion = Motion()
-    neato_motion.drive_rectangle(0.3)
+    set_motion = rospy.get_param("~motion")
     
-        
+    if set_motion == "straight":
+        neato_motion.straight(1)
+    elif set_motion == "rectangle":
+        neato_motion.rectangle(0.3)
+    elif set_motion == "turn":
+        neato_motion.turn(2*math.pi)
+    else:
+        rospy.logerr("Invalid arg in motion launch file. Please one of the following arg: 'straight', 'rectangle' or 'turn'.")
