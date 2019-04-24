@@ -39,7 +39,7 @@ from math import sin,cos
 
 from sensor_msgs.msg import LaserScan, Range
 from std_srvs.srv import SetBool, SetBoolResponse
-from neato_node.msg import Button, Sensor, Movement
+from neato_node.msg import Button, Sensor, Movement, Encoder
 from neato_node.srv import SetLed, SetLedResponse, PlaySound, PlaySoundResponse
 from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import Twist
@@ -64,6 +64,7 @@ class NeatoNode:
         rospy.Subscriber("cmd_dist", Movement, self.cmdMovementCb)
         self.scanPub = rospy.Publisher('base_scan', LaserScan, queue_size=1)
         self.odomPub = rospy.Publisher('odom', Odometry, queue_size=1)
+        self.encoderPub = rospy.Publisher('encoder', Encoder, queue_size=1)
         self.buttonPub = rospy.Publisher('button', Button, queue_size=1)
         self.sensorPub = rospy.Publisher('sensor', Sensor, queue_size=1)
         self.accelerationPub = rospy.Publisher('acceleration', Vector3Stamped, queue_size=1)
@@ -99,6 +100,8 @@ class NeatoNode:
         odom = Odometry(header=rospy.Header(frame_id="odom"), child_frame_id='base_link')
         self.odomPub.publish(odom)
 
+        encoder = Encoder()
+
         button = Button()
         sensor = Sensor()
         magnetic = Sensor()
@@ -125,6 +128,8 @@ class NeatoNode:
                     loop_counter += 1
 
                 self.publish_odom(odom)
+                self.publish_raw_encoders(encoder)
+                self.publish_buttons(button)
                 drop_left, drop_right, ml, mr = self.publish_analog(acceleration, range_sensor, magnetic)
                 lw, rw, lsb, rsb, lfb, rfb = self.publish_digital(sensor)
 
@@ -172,7 +177,7 @@ class NeatoNode:
             k = self.robot.max_speed
             rospy.logwarn("You have set the speed to more than the maximum speed of the neato. For safety reasons it is set to %d", self.robot.max_speed)
         self.cmd_vel = k
-        self.cmd_dist = [req.x_dist*1000, req.y_dist*1000]
+        self.cmd_dist = [req.l_dist*1000, req.r_dist*1000]
         self.update_movement = True
 
     def publish_odom(self, odom):
@@ -212,6 +217,20 @@ class NeatoNode:
         self.odomPub.publish(odom)
         self.odomBroadcaster.sendTransform((self.x, self.y, 0), (quaternion.x, quaternion.y, quaternion.z,
                                                                          quaternion.w), rospy.Time.now(), "base_link", "odom")
+
+    def publish_raw_encoders(self, encoder):
+        # get motor encoder values
+        left, right = self.robot.getMotors()
+
+        d_left = (left - self.encoders[0])/1000.0
+        d_right = (right - self.encoders[1])/1000.0
+        self.encoders = [left, right]
+        # prepare the msg
+        encoder.header.stamp = rospy.Time.now()
+        encoder.left = d_left
+        encoder.right = d_right
+        self.encoderPub.publish(encoder)
+
     def publish_scan(self, scan):
         scan.header.stamp = rospy.Time.now()
         scan.ranges = self.robot.getScanRanges()
