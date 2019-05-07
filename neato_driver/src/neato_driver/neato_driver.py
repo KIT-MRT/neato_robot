@@ -49,7 +49,10 @@ response string: http://www.neatorobotics.com.au/programmer-s-manual
 class Botvac():
 
     def __init__(self, port="/dev/ttyUSB0", lds = False):
-        self.port = serial.Serial(port,921600)
+        try:
+            self.port = serial.Serial(port,921600)
+        except SerialException:
+            print("Unable to connect to Neato. Is the Neato turned on?")
         # Storage for motor and sensor information
         self.state = {"FuelPercent": 0, "LeftWheel_PositionInMM": 0, "RightWheel_PositionInMM": 0, "LSIDEBIT": 0,
                 "RSIDEBIT": 0, "LFRONTBIT": 0, "RFRONTBIT": 0, "SNSR_LEFT_WHEEL_EXTENDED":0, 
