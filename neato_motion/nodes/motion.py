@@ -86,10 +86,12 @@ class Motion:
                       req.pose.pose.orientation.z,
                       req.pose.pose.orientation.w)# get yaw angle from odom msg
         (_, _, yaw) = tf.transformations.euler_from_quaternion(quaternion)
-        rel_turn = (yaw - self.old_yaw)
+        # we need to use the abs angle, because otherwise the angle will jump from -pi to pi
+        # which will be 2pi difference instead of a small angle
+        rel_turn = (abs(yaw) - self.old_yaw)
         self.abs_driven_angle += abs(rel_turn)
         self.rel_driven_angle += abs(rel_turn) 
-        self.old_yaw = yaw
+        self.old_yaw = abs(yaw)
 
 if __name__ == "__main__":    
     neato_motion = Motion()
