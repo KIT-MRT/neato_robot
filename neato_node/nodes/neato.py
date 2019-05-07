@@ -127,8 +127,8 @@ class NeatoNode:
                 else:
                     loop_counter += 1
 
-                self.publish_odom(odom)
-                self.publish_raw_encoders(encoder)
+                self.publish_odom(odom, encoder)
+                # self.publish_raw_encoders(encoder)
                 self.publish_buttons(button)
                 drop_left, drop_right, ml, mr = self.publish_analog(acceleration, range_sensor, magnetic)
                 lw, rw, lsb, rsb, lfb, rfb = self.publish_digital(sensor)
@@ -180,7 +180,7 @@ class NeatoNode:
         self.cmd_dist = [req.l_dist*1000, req.r_dist*1000]
         self.update_movement = True
 
-    def publish_odom(self, odom):
+    def publish_odom(self, odom, encoder):
         # get motor encoder values
         left, right = self.robot.getMotors()
 
@@ -217,6 +217,10 @@ class NeatoNode:
         self.odomPub.publish(odom)
         self.odomBroadcaster.sendTransform((self.x, self.y, 0), (quaternion.x, quaternion.y, quaternion.z,
                                                                          quaternion.w), rospy.Time.now(), "base_link", "odom")
+        encoder.header.stamp = rospy.Time.now()
+        encoder.left = d_left
+        encoder.right = d_right
+        self.encoderPub.publish(encoder)
 
     def publish_raw_encoders(self, encoder):
         # get motor encoder values
