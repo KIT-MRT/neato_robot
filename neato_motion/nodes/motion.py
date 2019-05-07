@@ -60,6 +60,7 @@ class Motion:
         self.cmdDistPub.publish(self.movement)
         while(self.rel_driven_angle < angle):
             pass
+        rospy.logwarn("i will now stop")
         self.cmdDistPub.publish(self.stop)
 
     
@@ -93,11 +94,11 @@ class Motion:
 if __name__ == "__main__":    
     neato_motion = Motion()
     set_motion = rospy.get_param("~motion")
-    
+    time.sleep(3)
     if set_motion == "straight":
         neato_motion.straight(1)
     elif set_motion == "rectangle":
-        neato_motion.rectangle(0.3)
+        neato_motion.drive_rectangle(0.3)
     elif set_motion == "turn":
         neato_motion.turn(2*math.pi)
     else:
