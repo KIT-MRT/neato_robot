@@ -35,7 +35,7 @@ import roslib; roslib.load_manifest("neato_node")
 import rospy
 import sys
 import traceback
-from math import sin,cos
+from math import sin,cos,copysign
 
 from sensor_msgs.msg import LaserScan, Range
 from std_srvs.srv import SetBool, SetBoolResponse
@@ -61,6 +61,7 @@ class NeatoNode:
 
         self.robot = Botvac(self.port, self.lds)
 
+        rospy.Subscriber("cmd_vel", Twist, self.cmdVelCb)
         rospy.Subscriber("cmd_dist", Movement, self.cmdMovementCb)
         self.scanPub = rospy.Publisher('base_scan', LaserScan, queue_size=1)
         self.odomPub = rospy.Publisher('odom', Odometry, queue_size=1)
@@ -81,6 +82,7 @@ class NeatoNode:
         self.cmd_vel = 0
         self.cmd_dist = [0, 0]
         self.update_movement = False
+        self.update_velocity = False
         self.encoders = [0, 0]
 
     def spin(self):
@@ -141,6 +143,9 @@ class NeatoNode:
                     self.robot.setMotors(self.cmd_dist[0], self.cmd_dist[1], self.cmd_vel)
                     # reset update flag 
                     self.update_movement = False
+                elif self.update_velocity:
+                    self.robot.setMotors(self.cmd_dist[0], self.cmd_dist[1], self.cmd_vel)
+                    self.update_velocity = False
               # wait, then do it again
                 r.sleep()
 
@@ -162,13 +167,23 @@ class NeatoNode:
             self.robot.setTestMode("off")
 
     def cmdVelCb(self,req):
-        x = req.linear.x * 1000
-        th = req.angular.z * (self.robot.base_width/2)
-        k = max(abs(x-th),abs(x+th))
+        k = req.linear.x * 1000
+        th = req.angular.z
         # sending commands higher than max speed will fail
         if k > self.robot.max_speed:
-            x = x*self.robot.max_speed/k; th = th*self.robot.max_speed/k
-        self.cmd_vel = [int(x-th), int(x+th)]
+            k = self.robot.max_speed
+            rospy.logwarn("You have set the speed to more than the maximum speed of the neato. For safety reasons it is set to %d", self.robot.max_speed)
+        # if the angular velocity is 0 then we want to drive forward or backwards
+        if th == 0:
+            # copy the sign of the velocity k to get the driving direction
+            dist = math.copysign(10, k)
+            self.cmd_dist = [dist, dist]
+        elif k == 0:
+            self.cmd_dist = [-10*th, 10*th]
+        elif k != 0 and th != 0:
+            self.cmd_dist = [0, 0]
+        self.cmd_vel = x
+        self.update_movement = True
 
     def  cmdMovementCb(self,req):
         k = req.vel
