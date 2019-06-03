@@ -182,7 +182,7 @@ class NeatoNode:
             self.cmd_dist = [-10*th, 10*th]
         elif k != 0 and th != 0:
             self.cmd_dist = [0, 0]
-        self.cmd_vel = x
+        self.cmd_vel = k
         self.update_movement = True
 
     def  cmdMovementCb(self,req):
