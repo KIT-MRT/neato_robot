@@ -176,7 +176,7 @@ class NeatoNode:
         # if the angular velocity is 0 then we want to drive forward or backwards
         if th == 0:
             # copy the sign of the velocity k to get the driving direction
-            dist = math.copysign(10, k)
+            dist = copysign(10, k)
             self.cmd_dist = [dist, dist]
         elif k == 0:
             self.cmd_dist = [-10*th, 10*th]
