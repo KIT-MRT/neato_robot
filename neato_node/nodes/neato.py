@@ -167,22 +167,21 @@ class NeatoNode:
             self.robot.setTestMode("off")
 
     def cmdVelCb(self,req):
-        k = req.linear.x * 1000
+        dist_increment = 40
+        k = req.linear.x
         th = req.angular.z
-        # sending commands higher than max speed will fail
-        if k > self.robot.max_speed:
-            k = self.robot.max_speed
-            rospy.logwarn("You have set the speed to more than the maximum speed of the neato. For safety reasons it is set to %d", self.robot.max_speed)
         # if the angular velocity is 0 then we want to drive forward or backwards
         if th == 0:
             # copy the sign of the velocity k to get the driving direction
-            dist = copysign(10, k)
+            dist = copysign(dist_increment, k)
             self.cmd_dist = [dist, dist]
         elif k == 0:
-            self.cmd_dist = [-10*th, 10*th]
-        elif k != 0 and th != 0:
+            self.cmd_dist = [-dist_increment*th, dist_increment*th]
+        if k != 0 and th != 0:
             self.cmd_dist = [0, 0]
-        self.cmd_vel = k
+            self.cmd_vel = 0
+        else:
+            self.cmd_vel = 100
         self.update_movement = True
 
     def  cmdMovementCb(self,req):
