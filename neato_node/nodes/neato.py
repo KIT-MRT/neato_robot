@@ -167,7 +167,7 @@ class NeatoNode:
             self.robot.setTestMode("off")
 
     def cmdVelCb(self,req):
-        dist_increment = 40
+        dist_increment = 100
         k = req.linear.x
         th = req.angular.z
         # if the angular velocity is 0 then we want to drive forward or backwards
@@ -181,7 +181,7 @@ class NeatoNode:
             self.cmd_dist = [0, 0]
             self.cmd_vel = 0
         else:
-            self.cmd_vel = 100
+            self.cmd_vel = 200
         self.update_movement = True
 
     def  cmdMovementCb(self,req):
